@@ -1,0 +1,17 @@
+#### scraper.py ####
+
+The website https://ifsc.results.info/ uses Vue.js and has a volatile structure, this makes it hard to use selenium sustainably
+
+Playwright is a newer package that is better at handling the backend APIs of websites.
+
+The API structure is https://ifsc.results.info/api/v1/ for the home page and then https://ifsc.results.info/api/v1/seasons/3 is the 
+year 1990, up to https://ifsc.results.info/api/v1/seasons/39 for the year 2028. There is also an https://ifsc.results.info/api/v1/info
+
+For an unknown reason 2020 is season = 2 and there is yet to be a 2027.
+
+Currently you cannot get the API directly and need to replicate browser access. Playwright can do this.
+
+Each eventID has it's own url (e.g. https://ifsc.results.info/api/v1/events/1492 ). Within each event are the seperate disciplines
+(e.g. https://ifsc.results.info/api/v1/events/1492/result/313).
+
+* Need to amend the script to only incrementally add new rows to an existing events_data list
