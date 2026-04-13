@@ -19,3 +19,8 @@ A raw json is now extracted so that you can see the structure and decide which e
 TO DO:
 * Amend the script to only incrementally add new rows to an existing events_data list.
 * Check text formatting so that special characters export to csv correctly.
+
+#### scrape_one_url ####
+
+Added complication that events with Q-SF-F structure will have additional event pages with a url 
+such as https://ifsc.results.info/api/v1/category_rounds/8584/results

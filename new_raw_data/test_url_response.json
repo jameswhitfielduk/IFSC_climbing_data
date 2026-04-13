@@ -1,0 +1,1636 @@
+{
+    "id": 1385,
+    "name": "Olympic Qualifier Series Budapest 2024",
+    "type": "classic",
+    "league_id": 11,
+    "rounds": [
+        {
+            "id": 2448,
+            "name": "Qualification"
+        },
+        {
+            "id": 2449,
+            "name": "Qualification"
+        },
+        {
+            "id": 2509,
+            "name": "Semi-Final"
+        },
+        {
+            "id": 2510,
+            "name": "Final"
+        },
+        {
+            "id": 2511,
+            "name": "Final"
+        }
+    ],
+    "league_season_id": 438,
+    "season_id": 36,
+    "starts_at": "2024-06-19 22:00:00 UTC",
+    "ends_at": "2024-06-23 21:59:00 UTC",
+    "local_start_date": "2024-06-20",
+    "local_end_date": "2024-06-23",
+    "timezone": {
+        "value": "Europe/Budapest"
+    },
+    "location": "Budapest",
+    "registration_url": "/api/v1/events/1385/registrations",
+    "public_information": {
+        "organiser_name": null,
+        "organiser_url": null,
+        "venue_name": null,
+        "description": null
+    },
+    "cup_name": "",
+    "country": "HUN",
+    "registration_deadline": "2023-02-06T00:00:00.000Z",
+    "registration_opens_at": "2023-06-20T22:00:00.000Z",
+    "removal_deadline": "2023-02-06T00:00:00.000Z",
+    "athlete_self_registration": false,
+    "team_official_self_registration": false,
+    "event_logo": null,
+    "series_logo": null,
+    "cover": null,
+    "infosheet_url": null,
+    "additional_info_url": null,
+    "is_paraclimbing_event": false,
+    "self_judged": false,
+    "d_cats": [
+        {
+            "dcat_id": 677,
+            "event_id": 1385,
+            "dcat_name": "BOULDER&LEAD Men",
+            "discipline_kind": "boulder&lead",
+            "category_id": 6060,
+            "category_name": "Men",
+            "status": "finished",
+            "status_as_of": "2025-10-02 07:18:41 UTC",
+            "ranking_as_of": "2024-07-05 09:34:03 UTC",
+            "category_rounds": [
+                {
+                    "category_round_id": 8766,
+                    "kind": "boulder&lead",
+                    "name": "Qualification",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 08:42:25 UTC",
+                    "result_url": "/api/v1/category_rounds/8766/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 879,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-21 16:58:09 UTC",
+                            "results": "/api/v1/combined_stages/879/results",
+                            "routes": [
+                                {
+                                    "id": 12209,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/12209/startlist"
+                                },
+                                {
+                                    "id": 12210,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/12210/startlist"
+                                },
+                                {
+                                    "id": 12211,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/12211/startlist"
+                                },
+                                {
+                                    "id": 12212,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/12212/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 880,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-21 16:58:09 UTC",
+                            "results": "/api/v1/combined_stages/880/results",
+                            "routes": [
+                                {
+                                    "id": 12213,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/12213/startlist",
+                                    "ranking": "/api/v1/routes/12213/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 31
+                    },
+                    "format_identifier": "bl_qualification",
+                    "format": "IFSC: Qualification",
+                    "routes": []
+                },
+                {
+                    "category_round_id": 9095,
+                    "kind": "boulder&lead",
+                    "name": "Semi-Final",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 15:37:40 UTC",
+                    "result_url": "/api/v1/category_rounds/9095/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 927,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-22 12:20:37 UTC",
+                            "results": "/api/v1/combined_stages/927/results",
+                            "routes": [
+                                {
+                                    "id": 13362,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13362/startlist"
+                                },
+                                {
+                                    "id": 13363,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/13363/startlist"
+                                },
+                                {
+                                    "id": 13364,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/13364/startlist"
+                                },
+                                {
+                                    "id": 13365,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/13365/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 928,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-22 15:37:39 UTC",
+                            "results": "/api/v1/combined_stages/928/results",
+                            "routes": [
+                                {
+                                    "id": 13366,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13366/startlist",
+                                    "ranking": "/api/v1/routes/13366/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 32
+                    },
+                    "format_identifier": "bl_qualification",
+                    "format": "IFSC: Qualification",
+                    "routes": []
+                },
+                {
+                    "category_round_id": 9097,
+                    "kind": "boulder&lead",
+                    "name": "Final",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-23 16:15:22 UTC",
+                    "result_url": "/api/v1/category_rounds/9097/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 931,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-23 15:14:02 UTC",
+                            "results": "/api/v1/combined_stages/931/results",
+                            "routes": [
+                                {
+                                    "id": 13372,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13372/startlist"
+                                },
+                                {
+                                    "id": 13373,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/13373/startlist"
+                                },
+                                {
+                                    "id": 13374,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/13374/startlist"
+                                },
+                                {
+                                    "id": 13375,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/13375/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 932,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-23 16:15:22 UTC",
+                            "results": "/api/v1/combined_stages/932/results",
+                            "routes": [
+                                {
+                                    "id": 13376,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13376/startlist",
+                                    "ranking": "/api/v1/routes/13376/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 33
+                    },
+                    "format_identifier": "bl_final",
+                    "format": "IFSC: Finals",
+                    "routes": []
+                }
+            ],
+            "full_results_url": "/api/v1/events/1385/result/677",
+            "top_3_results": [
+                {
+                    "athlete_id": 532,
+                    "rank": 1,
+                    "name": "AVEZOU Sam",
+                    "firstname": "Sam",
+                    "lastname": "AVEZOU",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "5",
+                    "country": "FRA",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/FRA.png",
+                    "federation_id": 10,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 2101,
+                    "rank": 2,
+                    "name": "LEE Dohyun",
+                    "firstname": "Dohyun",
+                    "lastname": "LEE",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "2",
+                    "country": "KOR",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/KOR.png",
+                    "federation_id": 21,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 1364,
+                    "rank": 3,
+                    "name": "ONDRA Adam",
+                    "firstname": "Adam",
+                    "lastname": "ONDRA",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "4",
+                    "country": "CZE",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/CZE.png",
+                    "federation_id": 17,
+                    "rounds": [],
+                    "qualified": null
+                }
+            ]
+        },
+        {
+            "dcat_id": 682,
+            "event_id": 1385,
+            "dcat_name": "BOULDER&LEAD Women",
+            "discipline_kind": "boulder&lead",
+            "category_id": 6061,
+            "category_name": "Women",
+            "status": "finished",
+            "status_as_of": "2025-10-02 07:18:41 UTC",
+            "ranking_as_of": "2024-06-25 10:05:18 UTC",
+            "category_rounds": [
+                {
+                    "category_round_id": 8771,
+                    "kind": "boulder&lead",
+                    "name": "Qualification",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 08:42:43 UTC",
+                    "result_url": "/api/v1/category_rounds/8771/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 889,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-21 16:58:09 UTC",
+                            "results": "/api/v1/combined_stages/889/results",
+                            "routes": [
+                                {
+                                    "id": 12234,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/12234/startlist"
+                                },
+                                {
+                                    "id": 12235,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/12235/startlist"
+                                },
+                                {
+                                    "id": 12236,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/12236/startlist"
+                                },
+                                {
+                                    "id": 12237,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/12237/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 890,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-21 16:58:09 UTC",
+                            "results": "/api/v1/combined_stages/890/results",
+                            "routes": [
+                                {
+                                    "id": 12238,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/12238/startlist",
+                                    "ranking": "/api/v1/routes/12238/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 31
+                    },
+                    "format_identifier": "bl_qualification",
+                    "format": "IFSC: Qualification",
+                    "routes": []
+                },
+                {
+                    "category_round_id": 9096,
+                    "kind": "boulder&lead",
+                    "name": "Semi-Final",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 15:39:50 UTC",
+                    "result_url": "/api/v1/category_rounds/9096/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 929,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-22 12:20:27 UTC",
+                            "results": "/api/v1/combined_stages/929/results",
+                            "routes": [
+                                {
+                                    "id": 13367,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13367/startlist"
+                                },
+                                {
+                                    "id": 13368,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/13368/startlist"
+                                },
+                                {
+                                    "id": 13369,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/13369/startlist"
+                                },
+                                {
+                                    "id": 13370,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/13370/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 930,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-22 15:39:49 UTC",
+                            "results": "/api/v1/combined_stages/930/results",
+                            "routes": [
+                                {
+                                    "id": 13371,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13371/startlist",
+                                    "ranking": "/api/v1/routes/13371/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 32
+                    },
+                    "format_identifier": "bl_qualification",
+                    "format": "IFSC: Qualification",
+                    "routes": []
+                },
+                {
+                    "category_round_id": 9098,
+                    "kind": "boulder&lead",
+                    "name": "Final",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-23 10:51:11 UTC",
+                    "result_url": "/api/v1/category_rounds/9098/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 933,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-23 09:36:59 UTC",
+                            "results": "/api/v1/combined_stages/933/results",
+                            "routes": [
+                                {
+                                    "id": 13377,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13377/startlist"
+                                },
+                                {
+                                    "id": 13378,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/13378/startlist"
+                                },
+                                {
+                                    "id": 13379,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/13379/startlist"
+                                },
+                                {
+                                    "id": 13380,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/13380/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 934,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-23 10:51:10 UTC",
+                            "results": "/api/v1/combined_stages/934/results",
+                            "routes": [
+                                {
+                                    "id": 13381,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13381/startlist",
+                                    "ranking": "/api/v1/routes/13381/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 33
+                    },
+                    "format_identifier": "bl_final",
+                    "format": "IFSC: Finals",
+                    "routes": []
+                }
+            ],
+            "full_results_url": "/api/v1/events/1385/result/682",
+            "top_3_results": [
+                {
+                    "athlete_id": 1811,
+                    "rank": 1,
+                    "name": "RABOUTOU Brooke",
+                    "firstname": "Brooke",
+                    "lastname": "RABOUTOU",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "1",
+                    "country": "USA",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/USA.png",
+                    "federation_id": 20,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 2294,
+                    "rank": 2,
+                    "name": "NONAKA Miho",
+                    "firstname": "Miho",
+                    "lastname": "NONAKA",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "2",
+                    "country": "JPN",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/JPN.png",
+                    "federation_id": 25,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 11468,
+                    "rank": 3,
+                    "name": "MCNEICE Erin",
+                    "firstname": "Erin",
+                    "lastname": "MCNEICE",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "35",
+                    "country": "GBR",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/GBR.png",
+                    "federation_id": 11,
+                    "rounds": [],
+                    "qualified": null
+                }
+            ]
+        },
+        {
+            "dcat_id": 314,
+            "event_id": 1385,
+            "dcat_name": "SPEED Men",
+            "discipline_kind": "speed",
+            "category_id": 6070,
+            "category_name": "Men",
+            "status": "finished",
+            "status_as_of": "2025-10-02 07:18:41 UTC",
+            "ranking_as_of": "2024-06-25 10:21:21 UTC",
+            "category_rounds": [
+                {
+                    "category_round_id": 8776,
+                    "kind": "speed",
+                    "name": "Qualification",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-21 16:58:09 UTC",
+                    "result_url": "/api/v1/category_rounds/8776/results",
+                    "starting_groups": [],
+                    "combined_stages": [],
+                    "round": {
+                        "league_round_id": 31
+                    },
+                    "format_identifier": "speed_staggered",
+                    "format": "IFSC: Qualification",
+                    "routes": [
+                        {
+                            "id": 12259,
+                            "name": "A",
+                            "startlist": "/api/v1/routes/12259/startlist"
+                        },
+                        {
+                            "id": 12260,
+                            "name": "B",
+                            "startlist": "/api/v1/routes/12260/startlist"
+                        }
+                    ]
+                },
+                {
+                    "category_round_id": 9099,
+                    "kind": "speed",
+                    "name": "Final",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-25 10:18:46 UTC",
+                    "result_url": "/api/v1/category_rounds/9099/results",
+                    "starting_groups": [],
+                    "combined_stages": [],
+                    "round": {
+                        "league_round_id": 33
+                    },
+                    "format_identifier": "speed_elimination_ifsc_2023",
+                    "format": "IFSC 2023+: Elimination",
+                    "routes": [
+                        {
+                            "id": 13382,
+                            "name": "A",
+                            "startlist": "/api/v1/routes/13382/startlist"
+                        },
+                        {
+                            "id": 13383,
+                            "name": "B",
+                            "startlist": "/api/v1/routes/13383/startlist"
+                        }
+                    ]
+                }
+            ],
+            "full_results_url": "/api/v1/events/1385/result/314",
+            "top_3_results": [
+                {
+                    "athlete_id": 13598,
+                    "rank": 1,
+                    "name": "WU Peng",
+                    "firstname": "Peng",
+                    "lastname": "WU",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "CHN",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/CHN.png",
+                    "federation_id": 37,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 3362,
+                    "rank": 2,
+                    "name": "MAIMURATOV Amir",
+                    "firstname": "Amir",
+                    "lastname": "MAIMURATOV",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "KAZ",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/KAZ.png",
+                    "federation_id": 47,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 3340,
+                    "rank": 3,
+                    "name": "LEONARDO Veddriq",
+                    "firstname": "Veddriq",
+                    "lastname": "LEONARDO",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "INA",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/INA.png",
+                    "federation_id": 45,
+                    "rounds": [],
+                    "qualified": null
+                }
+            ]
+        },
+        {
+            "dcat_id": 334,
+            "event_id": 1385,
+            "dcat_name": "SPEED Women",
+            "discipline_kind": "speed",
+            "category_id": 6071,
+            "category_name": "Women",
+            "status": "finished",
+            "status_as_of": "2025-10-02 07:18:41 UTC",
+            "ranking_as_of": "2024-06-22 17:47:47 UTC",
+            "category_rounds": [
+                {
+                    "category_round_id": 8781,
+                    "kind": "speed",
+                    "name": "Qualification",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-21 16:58:09 UTC",
+                    "result_url": "/api/v1/category_rounds/8781/results",
+                    "starting_groups": [],
+                    "combined_stages": [],
+                    "round": {
+                        "league_round_id": 31
+                    },
+                    "format_identifier": "speed_staggered",
+                    "format": "IFSC: Qualification",
+                    "routes": [
+                        {
+                            "id": 12269,
+                            "name": "A",
+                            "startlist": "/api/v1/routes/12269/startlist"
+                        },
+                        {
+                            "id": 12270,
+                            "name": "B",
+                            "startlist": "/api/v1/routes/12270/startlist"
+                        }
+                    ]
+                },
+                {
+                    "category_round_id": 9100,
+                    "kind": "speed",
+                    "name": "Final",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 17:34:35 UTC",
+                    "result_url": "/api/v1/category_rounds/9100/results",
+                    "starting_groups": [],
+                    "combined_stages": [],
+                    "round": {
+                        "league_round_id": 33
+                    },
+                    "format_identifier": "speed_elimination_ifsc_2023",
+                    "format": "IFSC 2023+: Elimination",
+                    "routes": [
+                        {
+                            "id": 13384,
+                            "name": "A",
+                            "startlist": "/api/v1/routes/13384/startlist"
+                        },
+                        {
+                            "id": 13385,
+                            "name": "B",
+                            "startlist": "/api/v1/routes/13385/startlist"
+                        }
+                    ]
+                }
+            ],
+            "full_results_url": "/api/v1/events/1385/result/334",
+            "top_3_results": [
+                {
+                    "athlete_id": 2878,
+                    "rank": 1,
+                    "name": "KALUCKA Aleksandra",
+                    "firstname": "Aleksandra",
+                    "lastname": "KALUCKA",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "POL",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/POL.png",
+                    "federation_id": 36,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 13611,
+                    "rank": 2,
+                    "name": "ZHOU Yafei",
+                    "firstname": "Yafei",
+                    "lastname": "ZHOU",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "CHN",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/CHN.png",
+                    "federation_id": 37,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 3311,
+                    "rank": 3,
+                    "name": "SALLSABILLAH Rajiah",
+                    "firstname": "Rajiah",
+                    "lastname": "SALLSABILLAH",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "INA",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/INA.png",
+                    "federation_id": 45,
+                    "rounds": [],
+                    "qualified": null
+                }
+            ]
+        }
+    ],
+    "dcats": [
+        {
+            "dcat_id": 677,
+            "event_id": 1385,
+            "dcat_name": "BOULDER&LEAD Men",
+            "discipline_kind": "boulder&lead",
+            "category_id": 6060,
+            "category_name": "Men",
+            "status": "finished",
+            "status_as_of": "2025-10-02 07:18:41 UTC",
+            "ranking_as_of": "2024-07-05 09:34:03 UTC",
+            "category_rounds": [
+                {
+                    "category_round_id": 8766,
+                    "kind": "boulder&lead",
+                    "name": "Qualification",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 08:42:25 UTC",
+                    "result_url": "/api/v1/category_rounds/8766/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 879,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-21 16:58:09 UTC",
+                            "results": "/api/v1/combined_stages/879/results",
+                            "routes": [
+                                {
+                                    "id": 12209,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/12209/startlist"
+                                },
+                                {
+                                    "id": 12210,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/12210/startlist"
+                                },
+                                {
+                                    "id": 12211,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/12211/startlist"
+                                },
+                                {
+                                    "id": 12212,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/12212/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 880,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-21 16:58:09 UTC",
+                            "results": "/api/v1/combined_stages/880/results",
+                            "routes": [
+                                {
+                                    "id": 12213,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/12213/startlist",
+                                    "ranking": "/api/v1/routes/12213/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 31
+                    },
+                    "format_identifier": "bl_qualification",
+                    "format": "IFSC: Qualification",
+                    "routes": []
+                },
+                {
+                    "category_round_id": 9095,
+                    "kind": "boulder&lead",
+                    "name": "Semi-Final",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 15:37:40 UTC",
+                    "result_url": "/api/v1/category_rounds/9095/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 927,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-22 12:20:37 UTC",
+                            "results": "/api/v1/combined_stages/927/results",
+                            "routes": [
+                                {
+                                    "id": 13362,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13362/startlist"
+                                },
+                                {
+                                    "id": 13363,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/13363/startlist"
+                                },
+                                {
+                                    "id": 13364,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/13364/startlist"
+                                },
+                                {
+                                    "id": 13365,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/13365/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 928,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-22 15:37:39 UTC",
+                            "results": "/api/v1/combined_stages/928/results",
+                            "routes": [
+                                {
+                                    "id": 13366,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13366/startlist",
+                                    "ranking": "/api/v1/routes/13366/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 32
+                    },
+                    "format_identifier": "bl_qualification",
+                    "format": "IFSC: Qualification",
+                    "routes": []
+                },
+                {
+                    "category_round_id": 9097,
+                    "kind": "boulder&lead",
+                    "name": "Final",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-23 16:15:22 UTC",
+                    "result_url": "/api/v1/category_rounds/9097/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 931,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-23 15:14:02 UTC",
+                            "results": "/api/v1/combined_stages/931/results",
+                            "routes": [
+                                {
+                                    "id": 13372,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13372/startlist"
+                                },
+                                {
+                                    "id": 13373,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/13373/startlist"
+                                },
+                                {
+                                    "id": 13374,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/13374/startlist"
+                                },
+                                {
+                                    "id": 13375,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/13375/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 932,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-23 16:15:22 UTC",
+                            "results": "/api/v1/combined_stages/932/results",
+                            "routes": [
+                                {
+                                    "id": 13376,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13376/startlist",
+                                    "ranking": "/api/v1/routes/13376/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 33
+                    },
+                    "format_identifier": "bl_final",
+                    "format": "IFSC: Finals",
+                    "routes": []
+                }
+            ],
+            "full_results_url": "/api/v1/events/1385/result/677",
+            "top_3_results": [
+                {
+                    "athlete_id": 532,
+                    "rank": 1,
+                    "name": "AVEZOU Sam",
+                    "firstname": "Sam",
+                    "lastname": "AVEZOU",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "5",
+                    "country": "FRA",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/FRA.png",
+                    "federation_id": 10,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 2101,
+                    "rank": 2,
+                    "name": "LEE Dohyun",
+                    "firstname": "Dohyun",
+                    "lastname": "LEE",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "2",
+                    "country": "KOR",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/KOR.png",
+                    "federation_id": 21,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 1364,
+                    "rank": 3,
+                    "name": "ONDRA Adam",
+                    "firstname": "Adam",
+                    "lastname": "ONDRA",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "4",
+                    "country": "CZE",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/CZE.png",
+                    "federation_id": 17,
+                    "rounds": [],
+                    "qualified": null
+                }
+            ]
+        },
+        {
+            "dcat_id": 682,
+            "event_id": 1385,
+            "dcat_name": "BOULDER&LEAD Women",
+            "discipline_kind": "boulder&lead",
+            "category_id": 6061,
+            "category_name": "Women",
+            "status": "finished",
+            "status_as_of": "2025-10-02 07:18:41 UTC",
+            "ranking_as_of": "2024-06-25 10:05:18 UTC",
+            "category_rounds": [
+                {
+                    "category_round_id": 8771,
+                    "kind": "boulder&lead",
+                    "name": "Qualification",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 08:42:43 UTC",
+                    "result_url": "/api/v1/category_rounds/8771/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 889,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-21 16:58:09 UTC",
+                            "results": "/api/v1/combined_stages/889/results",
+                            "routes": [
+                                {
+                                    "id": 12234,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/12234/startlist"
+                                },
+                                {
+                                    "id": 12235,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/12235/startlist"
+                                },
+                                {
+                                    "id": 12236,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/12236/startlist"
+                                },
+                                {
+                                    "id": 12237,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/12237/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 890,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-21 16:58:09 UTC",
+                            "results": "/api/v1/combined_stages/890/results",
+                            "routes": [
+                                {
+                                    "id": 12238,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/12238/startlist",
+                                    "ranking": "/api/v1/routes/12238/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 31
+                    },
+                    "format_identifier": "bl_qualification",
+                    "format": "IFSC: Qualification",
+                    "routes": []
+                },
+                {
+                    "category_round_id": 9096,
+                    "kind": "boulder&lead",
+                    "name": "Semi-Final",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 15:39:50 UTC",
+                    "result_url": "/api/v1/category_rounds/9096/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 929,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-22 12:20:27 UTC",
+                            "results": "/api/v1/combined_stages/929/results",
+                            "routes": [
+                                {
+                                    "id": 13367,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13367/startlist"
+                                },
+                                {
+                                    "id": 13368,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/13368/startlist"
+                                },
+                                {
+                                    "id": 13369,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/13369/startlist"
+                                },
+                                {
+                                    "id": 13370,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/13370/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 930,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-22 15:39:49 UTC",
+                            "results": "/api/v1/combined_stages/930/results",
+                            "routes": [
+                                {
+                                    "id": 13371,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13371/startlist",
+                                    "ranking": "/api/v1/routes/13371/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 32
+                    },
+                    "format_identifier": "bl_qualification",
+                    "format": "IFSC: Qualification",
+                    "routes": []
+                },
+                {
+                    "category_round_id": 9098,
+                    "kind": "boulder&lead",
+                    "name": "Final",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-23 10:51:11 UTC",
+                    "result_url": "/api/v1/category_rounds/9098/results",
+                    "starting_groups": [],
+                    "combined_stages": [
+                        {
+                            "id": 933,
+                            "kind": "boulder",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-23 09:36:59 UTC",
+                            "results": "/api/v1/combined_stages/933/results",
+                            "routes": [
+                                {
+                                    "id": 13377,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13377/startlist"
+                                },
+                                {
+                                    "id": 13378,
+                                    "name": "2",
+                                    "startlist": "/api/v1/routes/13378/startlist"
+                                },
+                                {
+                                    "id": 13379,
+                                    "name": "3",
+                                    "startlist": "/api/v1/routes/13379/startlist"
+                                },
+                                {
+                                    "id": 13380,
+                                    "name": "4",
+                                    "startlist": "/api/v1/routes/13380/startlist"
+                                }
+                            ]
+                        },
+                        {
+                            "id": 934,
+                            "kind": "lead",
+                            "schedule": null,
+                            "status": "finished",
+                            "status_as_of": "2024-06-23 10:51:10 UTC",
+                            "results": "/api/v1/combined_stages/934/results",
+                            "routes": [
+                                {
+                                    "id": 13381,
+                                    "name": "1",
+                                    "startlist": "/api/v1/routes/13381/startlist",
+                                    "ranking": "/api/v1/routes/13381/results"
+                                }
+                            ]
+                        }
+                    ],
+                    "round": {
+                        "league_round_id": 33
+                    },
+                    "format_identifier": "bl_final",
+                    "format": "IFSC: Finals",
+                    "routes": []
+                }
+            ],
+            "full_results_url": "/api/v1/events/1385/result/682",
+            "top_3_results": [
+                {
+                    "athlete_id": 1811,
+                    "rank": 1,
+                    "name": "RABOUTOU Brooke",
+                    "firstname": "Brooke",
+                    "lastname": "RABOUTOU",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "1",
+                    "country": "USA",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/USA.png",
+                    "federation_id": 20,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 2294,
+                    "rank": 2,
+                    "name": "NONAKA Miho",
+                    "firstname": "Miho",
+                    "lastname": "NONAKA",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "2",
+                    "country": "JPN",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/JPN.png",
+                    "federation_id": 25,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 11468,
+                    "rank": 3,
+                    "name": "MCNEICE Erin",
+                    "firstname": "Erin",
+                    "lastname": "MCNEICE",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": "35",
+                    "country": "GBR",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/GBR.png",
+                    "federation_id": 11,
+                    "rounds": [],
+                    "qualified": null
+                }
+            ]
+        },
+        {
+            "dcat_id": 314,
+            "event_id": 1385,
+            "dcat_name": "SPEED Men",
+            "discipline_kind": "speed",
+            "category_id": 6070,
+            "category_name": "Men",
+            "status": "finished",
+            "status_as_of": "2025-10-02 07:18:41 UTC",
+            "ranking_as_of": "2024-06-25 10:21:21 UTC",
+            "category_rounds": [
+                {
+                    "category_round_id": 8776,
+                    "kind": "speed",
+                    "name": "Qualification",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-21 16:58:09 UTC",
+                    "result_url": "/api/v1/category_rounds/8776/results",
+                    "starting_groups": [],
+                    "combined_stages": [],
+                    "round": {
+                        "league_round_id": 31
+                    },
+                    "format_identifier": "speed_staggered",
+                    "format": "IFSC: Qualification",
+                    "routes": [
+                        {
+                            "id": 12259,
+                            "name": "A",
+                            "startlist": "/api/v1/routes/12259/startlist"
+                        },
+                        {
+                            "id": 12260,
+                            "name": "B",
+                            "startlist": "/api/v1/routes/12260/startlist"
+                        }
+                    ]
+                },
+                {
+                    "category_round_id": 9099,
+                    "kind": "speed",
+                    "name": "Final",
+                    "category": "Men",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-25 10:18:46 UTC",
+                    "result_url": "/api/v1/category_rounds/9099/results",
+                    "starting_groups": [],
+                    "combined_stages": [],
+                    "round": {
+                        "league_round_id": 33
+                    },
+                    "format_identifier": "speed_elimination_ifsc_2023",
+                    "format": "IFSC 2023+: Elimination",
+                    "routes": [
+                        {
+                            "id": 13382,
+                            "name": "A",
+                            "startlist": "/api/v1/routes/13382/startlist"
+                        },
+                        {
+                            "id": 13383,
+                            "name": "B",
+                            "startlist": "/api/v1/routes/13383/startlist"
+                        }
+                    ]
+                }
+            ],
+            "full_results_url": "/api/v1/events/1385/result/314",
+            "top_3_results": [
+                {
+                    "athlete_id": 13598,
+                    "rank": 1,
+                    "name": "WU Peng",
+                    "firstname": "Peng",
+                    "lastname": "WU",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "CHN",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/CHN.png",
+                    "federation_id": 37,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 3362,
+                    "rank": 2,
+                    "name": "MAIMURATOV Amir",
+                    "firstname": "Amir",
+                    "lastname": "MAIMURATOV",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "KAZ",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/KAZ.png",
+                    "federation_id": 47,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 3340,
+                    "rank": 3,
+                    "name": "LEONARDO Veddriq",
+                    "firstname": "Veddriq",
+                    "lastname": "LEONARDO",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "INA",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/INA.png",
+                    "federation_id": 45,
+                    "rounds": [],
+                    "qualified": null
+                }
+            ]
+        },
+        {
+            "dcat_id": 334,
+            "event_id": 1385,
+            "dcat_name": "SPEED Women",
+            "discipline_kind": "speed",
+            "category_id": 6071,
+            "category_name": "Women",
+            "status": "finished",
+            "status_as_of": "2025-10-02 07:18:41 UTC",
+            "ranking_as_of": "2024-06-22 17:47:47 UTC",
+            "category_rounds": [
+                {
+                    "category_round_id": 8781,
+                    "kind": "speed",
+                    "name": "Qualification",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-21 16:58:09 UTC",
+                    "result_url": "/api/v1/category_rounds/8781/results",
+                    "starting_groups": [],
+                    "combined_stages": [],
+                    "round": {
+                        "league_round_id": 31
+                    },
+                    "format_identifier": "speed_staggered",
+                    "format": "IFSC: Qualification",
+                    "routes": [
+                        {
+                            "id": 12269,
+                            "name": "A",
+                            "startlist": "/api/v1/routes/12269/startlist"
+                        },
+                        {
+                            "id": 12270,
+                            "name": "B",
+                            "startlist": "/api/v1/routes/12270/startlist"
+                        }
+                    ]
+                },
+                {
+                    "category_round_id": 9100,
+                    "kind": "speed",
+                    "name": "Final",
+                    "category": "Women",
+                    "schedule": null,
+                    "status": "finished",
+                    "status_as_of": "2024-06-22 17:34:35 UTC",
+                    "result_url": "/api/v1/category_rounds/9100/results",
+                    "starting_groups": [],
+                    "combined_stages": [],
+                    "round": {
+                        "league_round_id": 33
+                    },
+                    "format_identifier": "speed_elimination_ifsc_2023",
+                    "format": "IFSC 2023+: Elimination",
+                    "routes": [
+                        {
+                            "id": 13384,
+                            "name": "A",
+                            "startlist": "/api/v1/routes/13384/startlist"
+                        },
+                        {
+                            "id": 13385,
+                            "name": "B",
+                            "startlist": "/api/v1/routes/13385/startlist"
+                        }
+                    ]
+                }
+            ],
+            "full_results_url": "/api/v1/events/1385/result/334",
+            "top_3_results": [
+                {
+                    "athlete_id": 2878,
+                    "rank": 1,
+                    "name": "KALUCKA Aleksandra",
+                    "firstname": "Aleksandra",
+                    "lastname": "KALUCKA",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "POL",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/POL.png",
+                    "federation_id": 36,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 13611,
+                    "rank": 2,
+                    "name": "ZHOU Yafei",
+                    "firstname": "Yafei",
+                    "lastname": "ZHOU",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "CHN",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/CHN.png",
+                    "federation_id": 37,
+                    "rounds": [],
+                    "qualified": null
+                },
+                {
+                    "athlete_id": 3311,
+                    "rank": 3,
+                    "name": "SALLSABILLAH Rajiah",
+                    "firstname": "Rajiah",
+                    "lastname": "SALLSABILLAH",
+                    "paraclimbing_sport_class": null,
+                    "sport_class_status": null,
+                    "bib": null,
+                    "country": "INA",
+                    "flag_url": "https://d1n1qj9geboqnb.cloudfront.net/flags/INA.png",
+                    "federation_id": 45,
+                    "rounds": [],
+                    "qualified": null
+                }
+            ]
+        }
+    ],
+    "disciplines": [
+        {
+            "id": 1676,
+            "kind": "boulder&lead",
+            "settings": {
+                "lead": {
+                    "points": [
+                        100,
+                        96,
+                        92,
+                        88,
+                        84,
+                        80,
+                        76,
+                        72,
+                        68,
+                        64,
+                        60,
+                        57,
+                        54,
+                        51,
+                        48,
+                        45,
+                        42,
+                        39,
+                        36,
+                        33,
+                        30,
+                        28,
+                        26,
+                        24,
+                        22,
+                        20,
+                        18,
+                        16,
+                        14,
+                        12,
+                        10,
+                        9,
+                        8,
+                        7,
+                        6,
+                        5,
+                        4,
+                        3,
+                        2,
+                        1
+                    ],
+                    "plus": 0.1
+                },
+                "boulder": {
+                    "low_zone": 5,
+                    "high_zone": 10,
+                    "top": 25,
+                    "fall_deduction": 0.1
+                }
+            }
+        },
+        {
+            "id": 1677,
+            "kind": "speed",
+            "settings": null
+        }
+    ],
+    "computed_combined_categories": [],
+    "team_ranking_disciplines": [
+        "boulder&lead",
+        "speed"
+    ],
+    "team_ranking_url": "/api/v1/events/1385/team_results/",
+    "time_rankings": false,
+    "time_ranking_url": null,
+    "custom_event_registration_fields": []
+}
