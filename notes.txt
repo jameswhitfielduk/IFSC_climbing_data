@@ -14,4 +14,8 @@ Currently you cannot get the API directly and need to replicate browser access. 
 Each eventID has it's own url (e.g. https://ifsc.results.info/api/v1/events/1492 ). Within each event are the seperate disciplines
 (e.g. https://ifsc.results.info/api/v1/events/1492/result/313).
 
-* Need to amend the script to only incrementally add new rows to an existing events_data list
+A raw json is now extracted so that you can see the structure and decide which elements to extract.
+
+TO DO:
+* Amend the script to only incrementally add new rows to an existing events_data list.
+* Check text formatting so that special characters export to csv correctly.

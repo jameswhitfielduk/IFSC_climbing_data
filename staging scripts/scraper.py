@@ -62,7 +62,7 @@ def fetch_ifsc_with_playwright():
                     if key.lower().startswith("x-"):
                         api_headers[key] = value
 
-        # Attach our traffic interceptor to the page
+        # Attach a traffic interceptor to the page
         page.on("request", intercept_background_requests)
         
         # Load the main website and wait until the network is quiet.
@@ -87,7 +87,7 @@ def fetch_ifsc_with_playwright():
                 return await response.json();
             }}""")
             
-            # Check if we still got the not authorized message
+            # Check for authorisation errors in the response
             if isinstance(json_data, dict) and json_data.get("message") == "Not Authorized!":
                 print(f"  -> Failed: The server still rejected the request for {year}.")
                 continue
@@ -108,11 +108,18 @@ def fetch_ifsc_with_playwright():
             for event in events:
                         extracted_data.append({
                             "year": year,
-                            "event_name": event.get("event", "Unknown"),
+                            "event_id": event.get("event_id", None),
+                            "event": event.get("event", "Unknown"),
+                            "cup_id": event.get("cup_id", None),
+                            "cup_name": event.get("cup_name", "Unknown"),
+                            "location": event.get("location", "Unknown"),
+                            "country": event.get("country", "Unknown"),
+                            "local_start_date": event.get("local_start_date", None),
+                            "local_end_date": event.get("local_end_date", None),
                             "event_url": f"https://ifsc.results.info/{event.get('url', f'events/{event.get("id")}')}"
                         })
 
-            # A polite 1-second delay between requests to avoid rate-limiting
+            # A 1-second delay between requests to avoid rate-limiting
             time.sleep(1)
 
         # Close the browser once the loop is finished
@@ -120,6 +127,14 @@ def fetch_ifsc_with_playwright():
 
     # Convert to Pandas DataFrame
     df = pd.DataFrame(extracted_data)
+
+    # Keep numeric IDs as whole numbers and date columns in ISO format.
+    df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
+    df["event_id"] = pd.to_numeric(df["event_id"], errors="coerce").astype("Int64")
+    df["cup_id"] = pd.to_numeric(df["cup_id"], errors="coerce").astype("Int64")
+    df["local_start_date"] = pd.to_datetime(df["local_start_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+    df["local_end_date"] = pd.to_datetime(df["local_end_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+
     return df
 
 # Run the function
