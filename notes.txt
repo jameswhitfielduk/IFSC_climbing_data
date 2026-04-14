@@ -7,7 +7,7 @@ Playwright is a newer package that is better at handling the backend APIs of web
 The API structure is https://ifsc.results.info/api/v1/ for the home page and then https://ifsc.results.info/api/v1/seasons/3 is the 
 year 1990, up to https://ifsc.results.info/api/v1/seasons/39 for the year 2028. There is also an https://ifsc.results.info/api/v1/info
 
-For an unknown reason 2020 is season = 2 and there is yet to be a 2027.
+For an unknown reason 2020 is season = 2 and there is yet to be a 2027 assigned.
 
 Currently you cannot get the API directly and need to replicate browser access. Playwright can do this.
 
@@ -17,10 +17,21 @@ Each eventID has it's own url (e.g. https://ifsc.results.info/api/v1/events/1492
 A raw json is now extracted so that you can see the structure and decide which elements to extract.
 
 TO DO:
-* Amend the script to only incrementally add new rows to an existing events_data list.
+* Amend the script to only incrementally add new rows to an existing events_data list AND only look at the new urls in that list.
 * Check text formatting so that special characters export to csv correctly.
 
 #### scrape_one_url ####
 
 Added complication that events with Q-SF-F structure will have additional event pages with a url 
 such as https://ifsc.results.info/api/v1/category_rounds/8584/results
+
+Use a JSON tree viewer online to understand the JSON structure.
+
+I will need to decide which elements to pull into the flat csv version, or can I just use the JSONL for 
+further steps?
+
+TO DO:
+* Annotate line-by-line
+* Can it be scraped faster without rate-limit
+* Understand required output
+* Adjust flat csv output
