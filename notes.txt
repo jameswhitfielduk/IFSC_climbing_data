@@ -31,7 +31,7 @@ I will need to decide which elements to pull into the flat csv version, or can I
 further steps?
 
 TO DO:
-* Annotate line-by-line
 * Can it be scraped faster without rate-limit
 * Understand required output
 * Adjust flat csv output
+* Add back in ability to query a single JSON from a specific URL
