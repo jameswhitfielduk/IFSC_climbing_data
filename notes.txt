@@ -1,4 +1,4 @@
-#### scraper.py ####
+#### event_url_scraper.py ####
 
 The website https://ifsc.results.info/ uses Vue.js and has a volatile structure, this makes it hard to use selenium sustainably
 
@@ -20,7 +20,7 @@ TO DO:
 * Amend the script to only incrementally add new rows to an existing events_data list AND only look at the new urls in that list.
 * Check text formatting so that special characters export to csv correctly.
 
-#### scrape_one_url ####
+#### extract_JSON_from_urls.py ####
 
 Added complication that events with Q-SF-F structure will have additional event pages with a url 
 such as https://ifsc.results.info/api/v1/category_rounds/8584/results
@@ -34,4 +34,15 @@ TO DO:
 * Can it be scraped faster without rate-limit
 * Understand required output
 * Adjust flat csv output
-* Add back in ability to query a single JSON from a specific URL
+* Add back in ability to query a single JSON from a specific URL / single year - have a seperate script for this?
+
+#### Emma conversation 28/04 ####
+* Send an example output ASAP
+* Replicate the previous output CSV structure. but also provide a flat csv of all columns
+
+#### extract_results_JSON_layers.py ####
+
+On first run this will try and loop through ~21k pages and take 5.5 hours
+
+TO DO:
+* Create a duplicate script to pull only one event / year

@@ -238,6 +238,8 @@ def flatten_jsonl_to_csv(input_jsonl: Path = RAW_JSONL, output_csv: Path = FLAT_
     print(f"Flattened CSV saved to: {output_csv}")
     print(f"Flattened rows: {len(flat_df)}")
 
+
+
 # This is where the script starts execution. When you run this script, it will first call the function to scrape the event URLs and save the raw JSONL,
 #  and then it will call the function to flatten the JSONL into a CSV file.
 if __name__ == "__main__": # this line just means "if we run this script directly (instead of importing it as a module), then execute the following code"
