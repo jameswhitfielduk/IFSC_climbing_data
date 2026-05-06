@@ -12,12 +12,15 @@ from playwright.sync_api import sync_playwright
 # 3) We will save each event's results as a separate JSONL file, where each line corresponds to a single result entry
 # 4) Convert the JSONL files into a single CSV file for easier analysis and integration with other datasets.
 
+# Choose event ID to sample from events_data.csv. Set to None to include all events. No need for []
+SAMPLE_EVENT_ID = 1386
+
 # import the list of event URLs from the CSV file
 BASE = Path("new_raw_data") # the folder path
 EVENT_RESULTS_CSV = BASE / "all_events_flat.csv" # the CSV file we created in the previous step that contains the list of event URLs to scrape
-RAW_JSONL = BASE / "all_results_raw.jsonl" # the output JSONL file where we will save the raw JSON data for each event (one JSON object per line)
-FLAT_CSV = BASE / "all_results_flat.csv" # the output CSV file where we will save the flattened data
-CHECKPOINT_FILE = BASE / "all_results_checkpoint.json"
+RAW_JSONL = BASE / "test_results_raw.jsonl" # the output JSONL file where we will save the raw JSON data for each event (one JSON object per line)
+FLAT_CSV = BASE / "test_results_flat.csv" # the output CSV file where we will save the flattened data
+CHECKPOINT_FILE = BASE / "test_results_checkpoint.json"
 
 # Choose which year(s) to extract from EVENTS_CSV:
 # - Set to None to include all years in events_data.csv.
@@ -55,7 +58,10 @@ URL_COLUMNS = [
 
 # This function reads each URL layer separately and returns a de-duplicated list per layer.
 def load_results_urls_by_layer() -> dict[str, list[str]]:
-    event_results_urls = pd.read_csv(EVENT_RESULTS_CSV, usecols=["season_id", *URL_COLUMNS])
+    event_results_urls = pd.read_csv(EVENT_RESULTS_CSV, usecols=["event_id", "season_id", *URL_COLUMNS])
+
+    if SAMPLE_EVENT_ID is not None:
+        event_results_urls = event_results_urls[event_results_urls["event_id"] == int(SAMPLE_EVENT_ID)]
 
     if YEARS_TO_EXTRACT:
         years = [int(y) for y in YEARS_TO_EXTRACT]

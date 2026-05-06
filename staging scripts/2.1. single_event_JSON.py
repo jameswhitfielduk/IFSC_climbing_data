@@ -14,24 +14,21 @@ from playwright.sync_api import sync_playwright
 # 5) Each row in the final CSV represents a unique combination of event, discipline/category (dcat), category round, and stage/route, 
 #       with all relevant metadata included as columns.
 
+# Choose event ID to sample from events_data.csv. Set to None to include all events.
+SAMPLE_EVENT_ID = 1386
+
 # import the list of event URLs from the CSV file
 BASE = Path("new_raw_data") # the folder path
 EVENTS_CSV = BASE / "events_data.csv" # the CSV file we created in the previous step that contains the list of event URLs to scrape
-RAW_JSONL = BASE / "all_events_raw.jsonl" # the output JSONL file where we will save the raw JSON data for each event (one JSON object per line)
-FLAT_CSV = BASE / "all_events_flat.csv" # the output CSV file where we will save the flattened data
-
-# Choose which year(s) to extract from EVENTS_CSV:
-# - Set to None to include all years in events_data.csv.
-# - Set to [2024] for one year, or [2022, 2023, 2024] for multiple years.
-YEARS_TO_EXTRACT = None
+RAW_JSONL = BASE / "test_event_raw.jsonl" # the output JSONL file where we will save the raw JSON data for each event (one JSON object per line)
+FLAT_CSV = BASE / "test_event_flat.csv" # the output CSV file where we will save the flattened data
 
 # This function reads the CSV file containing the event URLs, cleans it up by removing duplicates and empty entries, and returns a list of unique, valid URLs to scrape.
 def load_event_urls() -> list[str]:
-    events_data_urls = pd.read_csv(EVENTS_CSV, usecols=["event_url", "year"])
+    events_data_urls = pd.read_csv(EVENTS_CSV, usecols=["event_url", "event_id"])
 
-    if YEARS_TO_EXTRACT:
-        years = {int(y) for y in YEARS_TO_EXTRACT}
-        events_data_urls = events_data_urls[events_data_urls["year"].isin(years)]
+    if SAMPLE_EVENT_ID is not None:
+        events_data_urls = events_data_urls[events_data_urls["event_id"] == int(SAMPLE_EVENT_ID)]
 
     urls = events_data_urls["event_url"].dropna().astype(str).str.strip()
     urls = [url for url in urls.unique() if url]
@@ -43,10 +40,6 @@ def load_event_urls() -> list[str]:
 def scrape_event_urls_to_jsonl(headless: bool = False, delay_seconds: float = 0.5) -> None:
     event_urls = load_event_urls()
     RAW_JSONL.parent.mkdir(parents=True, exist_ok=True)
-
-    years_label = "all years" if YEARS_TO_EXTRACT is None else ", ".join(str(y) for y in YEARS_TO_EXTRACT)
-    print(f"Starting scrape for: {years_label}")
-    print(f"Total event URLs selected: {len(event_urls)}")
 
     success_count = 0 # counters to keep track of how many requests succeeded vs failed, just for logging purposes
     fail_count = 0
