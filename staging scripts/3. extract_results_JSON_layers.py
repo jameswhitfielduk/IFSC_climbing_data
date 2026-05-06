@@ -12,6 +12,11 @@ from playwright.sync_api import sync_playwright
 # 3) We will save each event's results as a separate JSONL file, where each line corresponds to a single result entry
 # 4) Convert the JSONL files into a single CSV file for easier analysis and integration with other datasets.
 
+## REMINDER: This script is designed to be run in batches, one URL layer at a time, 
+# to avoid overwhelming the server and to allow for easier debugging and error handling.
+# You can adjust the batch size and delay between requests in the `scrape_results_urls_to_jsonl` function below. 
+# After each batch, the script saves a checkpoint so you can resume from where it left off if needed.
+
 # import the list of event URLs from the CSV file
 BASE = Path("new_raw_data") # the folder path
 EVENT_RESULTS_CSV = BASE / "all_events_flat.csv" # the CSV file we created in the previous step that contains the list of event URLs to scrape
@@ -22,7 +27,7 @@ CHECKPOINT_FILE = BASE / "all_results_checkpoint.json"
 # Choose which year(s) to extract from EVENTS_CSV:
 # - Set to None to include all years in events_data.csv.
 # - Set to [2024] for one year, or [2022, 2023, 2024] for multiple years.
-YEARS_TO_EXTRACT = None
+YEARS_TO_EXTRACT = [2024]
 
 # Year to seasonID mapping
 seasons = {
@@ -46,11 +51,12 @@ seasons = {
 # They have different URL patterns and JSON structures. 
 # By organizing them into layers, we can handle each type separately and ensure we capture all relevant data.
 URL_COLUMNS = [
-    "full_results_url"
-    ,"round_result_url"
-    ,"stage_results_url"
-    ,"route_startlist_url"
-    ,"route_results_url"
+    "full_results_url" 
+    # the full results page for each event contains the full nested data (below) for each event, round and route
+    #,"round_result_url"
+    #,"stage_results_url"
+    #,"route_startlist_url"
+    #,"route_results_url"
 ]
 
 # This function reads each URL layer separately and returns a de-duplicated list per layer.

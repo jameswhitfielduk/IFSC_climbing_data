@@ -12,6 +12,11 @@ from playwright.sync_api import sync_playwright
 # 3) We will save each event's results as a separate JSONL file, where each line corresponds to a single result entry
 # 4) Convert the JSONL files into a single CSV file for easier analysis and integration with other datasets.
 
+## REMINDER: This script is designed to be run in batches, one URL layer at a time, 
+# to avoid overwhelming the server and to allow for easier debugging and error handling.
+# You can adjust the batch size and delay between requests in the `scrape_results_urls_to_jsonl` function below. 
+# Each run starts from the first URL of the selected stage range.
+
 # Choose event ID to sample from events_data.csv. Set to None to include all events. No need for []
 SAMPLE_EVENT_ID = 1386
 
@@ -20,7 +25,6 @@ BASE = Path("new_raw_data") # the folder path
 EVENT_RESULTS_CSV = BASE / "all_events_flat.csv" # the CSV file we created in the previous step that contains the list of event URLs to scrape
 RAW_JSONL = BASE / "test_results_raw.jsonl" # the output JSONL file where we will save the raw JSON data for each event (one JSON object per line)
 FLAT_CSV = BASE / "test_results_flat.csv" # the output CSV file where we will save the flattened data
-CHECKPOINT_FILE = BASE / "test_results_checkpoint.json"
 
 # Choose which year(s) to extract from EVENTS_CSV:
 # - Set to None to include all years in events_data.csv.
@@ -49,11 +53,12 @@ seasons = {
 # They have different URL patterns and JSON structures. 
 # By organizing them into layers, we can handle each type separately and ensure we capture all relevant data.
 URL_COLUMNS = [
-    "full_results_url"
-    ,"round_result_url"
-    ,"stage_results_url"
-    ,"route_startlist_url"
-    ,"route_results_url"
+    "full_results_url" 
+    # the full results page for each event contains the full nested data (below) for each event, round and route
+    #,"round_result_url"
+    #,"stage_results_url"
+    #,"route_startlist_url"
+    #,"route_results_url"
 ]
 
 # This function reads each URL layer separately and returns a de-duplicated list per layer.
@@ -84,24 +89,6 @@ def load_results_urls_by_layer() -> dict[str, list[str]]:
     return urls_by_layer
 
 
-def load_checkpoint() -> dict[str, int]:
-    if not CHECKPOINT_FILE.exists():
-        return {"stage_index": 0, "url_index": 0}
-
-    with CHECKPOINT_FILE.open("r", encoding="utf-8") as f:
-        state = json.load(f)
-
-    return {
-        "stage_index": int(state.get("stage_index", 0)),
-        "url_index": int(state.get("url_index", 0)),
-    }
-
-
-def save_checkpoint(stage_index: int, url_index: int) -> None:
-    checkpoint = {"stage_index": stage_index, "url_index": url_index}
-    with CHECKPOINT_FILE.open("w", encoding="utf-8") as f:
-        json.dump(checkpoint, f, ensure_ascii=False, indent=2)
-
 # This function uses Playwright to automate a browser, visit each result URL, and capture the JSON data returned by the website's API.
  # by default, it runs in headless mode (no browser window), but you can set headless=False for debugging or if the site blocks headless browsers.
  # It also includes a time delay between requests to avoid overwhelming the server and to mimic more human-like browsing behavior.
@@ -113,13 +100,11 @@ def scrape_results_urls_to_jsonl(
 ) -> None:
     urls_by_layer = load_results_urls_by_layer()
     RAW_JSONL.parent.mkdir(parents=True, exist_ok=True)
-    state = load_checkpoint()
-
-    stage_start = max(0, state["stage_index"])
+    stage_start = 0
     stage_end = min(stage_start + max(stages_per_run, 1), len(URL_COLUMNS))
 
     if stage_start >= len(URL_COLUMNS):
-        print("All stages are already complete. Delete checkpoint to rerun from start.")
+        print("No URL layers configured.")
         return
 
     success_count = 0 # counters to keep track of how many requests succeeded vs failed, just for logging purposes
@@ -165,12 +150,12 @@ def scrape_results_urls_to_jsonl(
         
         print(f"   -> Session established. Using headers: {api_headers}")
 
-        # Open in append mode so reruns/resumes do not wipe prior successful data.
-        with RAW_JSONL.open("a", encoding="utf-8") as jsonl_file:
+        # Open in write mode so each run creates a fresh file and overwrites any existing output.
+        with RAW_JSONL.open("w", encoding="utf-8") as jsonl_file:
             for stage_index in range(stage_start, stage_end):
                 layer_name = URL_COLUMNS[stage_index]
                 results_urls = urls_by_layer.get(layer_name, [])
-                start_url_index = state["url_index"] if stage_index == stage_start else 0
+                start_url_index = 0
 
                 print(f"\nStage {stage_index + 1}/{len(URL_COLUMNS)}: {layer_name}")
                 print(f"URLs in stage: {len(results_urls)} | starting at index: {start_url_index}")
@@ -217,12 +202,6 @@ def scrape_results_urls_to_jsonl(
 
                         if delay_seconds > 0:
                             time.sleep(delay_seconds) # add a delay between requests to avoid overwhelming the server and to mimic more human-like browsing behavior
-
-                    # Save progress after each batch so reruns continue from the next URL.
-                    save_checkpoint(stage_index=stage_index, url_index=batch_end)
-
-                # Move to next stage and reset URL index for that stage.
-                save_checkpoint(stage_index=stage_index + 1, url_index=0)
 
         # Close the browser once the loop is finished
         browser.close()
