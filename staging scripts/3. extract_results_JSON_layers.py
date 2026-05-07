@@ -28,9 +28,9 @@ RESULTS_CHECKPOINT_FILE = BASE / "all_results_checkpoint.json"
 # Choose which year(s) to extract from EVENTS_CSV:
 # - Set to None to include all years in events_data.csv.
 # - Set to [2024] for one year, or [2022, 2023, 2024] for multiple years.
-RESULTS_YEARS_TO_EXTRACT = [2024]
+RESULTS_YEARS_TO_EXTRACT = None #[2024]
 
-# Year to seasonID mapping
+# Dictionary: Year to seasonID mapping
 seasons = {
     # Initial sequence
     1990: 3, 1991: 4, 1992: 5, 1993: 6, 1994: 7,
@@ -61,64 +61,69 @@ URL_COLUMNS = [
 ]
 
 # This function reads each URL layer separately and returns a de-duplicated list per layer.
-def load_results_urls_by_layer() -> dict[str, list[str]]:
+    # the function returns a dictionary where the keys are the layer names (from URL_COLUMNS) and the values are lists of URLs for that layer
+def load_results_urls_by_layer() -> dict[str, list[str]]: 
+    # Read the CSV file and select only the columns we need (season_id and the URL columns). 
     event_results_urls = pd.read_csv(EVENT_RESULTS_CSV, usecols=["season_id", *URL_COLUMNS])
-
+# If RESULTS_YEARS_TO_EXTRACT is set, we filter the data to include only the rows that match the specified years.
     if RESULTS_YEARS_TO_EXTRACT:
         years = [int(y) for y in RESULTS_YEARS_TO_EXTRACT]
         season_ids = [seasons[y] for y in years if y in seasons]
         missing_years = [y for y in years if y not in seasons]
-
+# If there are any years specified in RESULTS_YEARS_TO_EXTRACT that do not have a corresponding season_id in the seasons mapping, we log a warning message.
         if missing_years:
             print(f"Warning: no season_id mapping found for year(s): {missing_years}")
-
+# If we have valid season_ids, we filter the event_results_urls to include only the rows where the season_id is in our list of season_ids.
         if season_ids:
             event_results_urls = event_results_urls[event_results_urls["season_id"].isin(season_ids)]
         else:
             print("Warning: no valid season_id values derived from RESULTS_YEARS_TO_EXTRACT; no rows selected.")
             event_results_urls = event_results_urls.iloc[0:0]
-
+# For each URL column (layer), we drop any missing values, convert to string, strip whitespace, and then create a list of unique URLs for that layer.
     urls_by_layer: dict[str, list[str]] = {}
     for col in URL_COLUMNS:
         layer_urls = event_results_urls[col].dropna().astype(str).str.strip()
         urls_by_layer[col] = [url for url in pd.unique(layer_urls) if url]
     return urls_by_layer
 
-
+# These two functions handle checkpointing, which allows us to save our progress after each batch of URLs is processed.
 def load_checkpoint() -> dict[str, int]:
     if not RESULTS_CHECKPOINT_FILE.exists():
         return {"stage_index": 0, "url_index": 0}
 
     with RESULTS_CHECKPOINT_FILE.open("r", encoding="utf-8") as f:
         state = json.load(f)
-
+# we return the stage_index and url_index from the checkpoint file, which tells us which URL layer 
+# and which URL within that layer we should start from when we resume the script.
     return {
         "stage_index": int(state.get("stage_index", 0)),
         "url_index": int(state.get("url_index", 0)),
     }
 
-
+# this function saves the current stage_index and url_index to the checkpoint file, 
+# so that if we need to stop and restart the script, we can pick up from where we left off instead of starting over.
 def save_checkpoint(stage_index: int, url_index: int) -> None:
     checkpoint = {"stage_index": stage_index, "url_index": url_index}
     with RESULTS_CHECKPOINT_FILE.open("w", encoding="utf-8") as f:
         json.dump(checkpoint, f, ensure_ascii=False, indent=2)
 
 # This function uses Playwright to automate a browser, visit each result URL, and capture the JSON data returned by the website's API.
- # by default, it runs in headless mode (no browser window), but you can set headless=False for debugging or if the site blocks headless browsers.
- # It also includes a time delay between requests to avoid overwhelming the server and to mimic more human-like browsing behavior.
+# By default, it runs in headless mode (no browser window), but you can set headless=False for debugging or if the site blocks headless browsers.
+# It also includes a time delay between requests to avoid overwhelming the server and to mimic more human-like browsing behavior.
 def scrape_results_urls_to_jsonl(
     headless: bool = False,
     delay_seconds: float = 0.5,
-    batch_size: int = 500,
-    stages_per_run: int = 1,
+    batch_size: int = 500, # number of URLs to process before saving a checkpoint; adjust based on memory constraints and desired checkpoint frequency
+    stages_per_run: int = 1, # number of URL layers to process in one run; set to 1 to do one layer at a time, or higher to do multiple layers
 ) -> None:
     urls_by_layer = load_results_urls_by_layer()
-    RESULTS_RAW_JSONL.parent.mkdir(parents=True, exist_ok=True)
-    state = load_checkpoint()
+    RESULTS_RAW_JSONL.parent.mkdir(parents=True, exist_ok=True) # make sure the output directory exists
+    state = load_checkpoint() # load the checkpoint to see where we left off in the last run, so we can resume from there instead of starting over
 
-    stage_start = max(0, state["stage_index"])
-    stage_end = min(stage_start + max(stages_per_run, 1), len(URL_COLUMNS))
-
+    stage_start = max(0, state["stage_index"]) # determine the starting stage based on the checkpoint
+    stage_end = min(stage_start + max(stages_per_run, 1), len(URL_COLUMNS)) # determine the ending stage for this run, start stage + stages_per_run or the total number of stages, whichever is smaller
+# if the starting stage is greater than or equal to the number of URL layers, 
+# this means we have already completed all stages in previous runs, so we log a message and exit the function.
     if stage_start >= len(URL_COLUMNS):
         print("All stages are already complete. Delete checkpoint to rerun from start.")
         return
@@ -168,6 +173,7 @@ def scrape_results_urls_to_jsonl(
 
         # Open in append mode so reruns/resumes do not wipe prior successful data.
         with RESULTS_RAW_JSONL.open("a", encoding="utf-8") as jsonl_file:
+            # these loops go through each URL layer (stage) and then through each URL in that layer, making the API request and saving the JSON response to the JSONL file.
             for stage_index in range(stage_start, stage_end):
                 layer_name = URL_COLUMNS[stage_index]
                 results_urls = urls_by_layer.get(layer_name, [])
@@ -175,11 +181,11 @@ def scrape_results_urls_to_jsonl(
 
                 print(f"\nStage {stage_index + 1}/{len(URL_COLUMNS)}: {layer_name}")
                 print(f"URLs in stage: {len(results_urls)} | starting at index: {start_url_index}")
-
+                # we process the URLs in batches, so we can save our progress after each batch and avoid losing too much work if something goes wrong.
                 for batch_start in range(start_url_index, len(results_urls), batch_size):
                     batch_end = min(batch_start + batch_size, len(results_urls))
                     print(f"  Batch {batch_start}:{batch_end}")
-
+                # these loops go through each URL in the current batch, make the API request to get the JSON data, and then save that data to the JSONL file.
                     for i in range(batch_start, batch_end):
                         results_url = results_urls[i]
                         print(f"[{i + 1}/{len(results_urls)}] Fetching {results_url}")
@@ -316,6 +322,7 @@ def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_c
                     # while others just have a "routes" key with the routes directly under the category round.
 
                     # 3rd level of the JSON is either the stage (if there are combined stages) or the route (if there are no combined stages).
+                    # there are 3 loops here to handle the different possible structures of the JSON, depending on whether combined stages are present or not.
                     if combined_stages:
                         for stage in combined_stages:
                             stage_base = {
@@ -362,7 +369,8 @@ def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_c
     print(f"Flattened CSV saved to: {output_csv}")
     print(f"Flattened rows: {len(flat_df)}")
 
-
+# This function is similar to the previous one, but goes beyond the meta data into the JSON structure 
+# to extract detailed information about athlete rankings, rounds, stages, and ascents.
 def flatten_rankings_jsonl_to_csv(
     input_jsonl: Path = RESULTS_RAW_JSONL,
     output_csv: Path = RESULTS_RANKINGS_FLAT_CSV,
@@ -428,6 +436,8 @@ def flatten_rankings_jsonl_to_csv(
                     combined_stages = athlete_round.get("combined_stages") or []
 
                     # 4th level: stage-level entries and their ascents/routes.
+                    # there are 3 loops here to handle the different possible structures of the JSON, 
+                    # depending on whether combined stages are present or not, and whether ascents are present or not.
                     if combined_stages:
                         for stage in combined_stages:
                             stage_base = {
@@ -519,8 +529,8 @@ def flatten_rankings_jsonl_to_csv(
 #  and then it will call the function to flatten the JSONL into a CSV file.
 if __name__ == "__main__": # this line just means "if we run this script directly (instead of importing it as a module), then execute the following code"
     scrape_results_urls_to_jsonl(headless=False, 
-                                 delay_seconds=0, # set to 0 for no delay, or a small delay can help avoid triggering anti-scraping measures on the website
-                                 batch_size=500, # smaller batches can help with error handling and reduce memory usage, but larger batches can be faster if the site can handle it
-                                 stages_per_run=1) # if you want to include further URL layers set stages_per_run to 1 to run one URL layer at a time
+                                 delay_seconds=0, # set to 0 for no delay; a small delay can help avoid triggering anti-scraping measures on the website
+                                 batch_size=500, # smaller batches can help with error handling and reduce memory usage, but larger batches can be faster
+    )
     flatten_results_jsonl_to_csv()
     flatten_rankings_jsonl_to_csv()
