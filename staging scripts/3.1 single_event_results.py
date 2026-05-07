@@ -23,8 +23,9 @@ SAMPLE_EVENT_ID = 1386
 # import the list of event URLs from the CSV file
 BASE = Path("new_raw_data") # the folder path
 EVENT_RESULTS_CSV = BASE / "all_events_flat.csv" # the CSV file we created in the previous step that contains the list of event URLs to scrape
-RAW_JSONL = BASE / "test_results_raw.jsonl" # the output JSONL file where we will save the raw JSON data for each event (one JSON object per line)
-FLAT_CSV = BASE / "test_results_flat.csv" # the output CSV file where we will save the flattened data
+RESULTS_RAW_JSONL = BASE / "test_results_raw.jsonl" # the output JSONL file where we will save the raw JSON data for each event (one JSON object per line)
+RESULTS_FLAT_CSV = BASE / "test_results_meta_flat.csv" # the output CSV file where we will save the flattened data
+RESULTS_RANKINGS_FLAT_CSV = BASE / "test_results_rankings_flat.csv" # the output CSV file where we will save the flattened athlete ranking data (including round/stage/ascent detail)
 
 # Choose which year(s) to extract from EVENTS_CSV:
 # - Set to None to include all years in events_data.csv.
@@ -99,7 +100,7 @@ def scrape_results_urls_to_jsonl(
     stages_per_run: int = 1,
 ) -> None:
     urls_by_layer = load_results_urls_by_layer()
-    RAW_JSONL.parent.mkdir(parents=True, exist_ok=True)
+    RESULTS_RAW_JSONL.parent.mkdir(parents=True, exist_ok=True)
     stage_start = 0
     stage_end = min(stage_start + max(stages_per_run, 1), len(URL_COLUMNS))
 
@@ -151,7 +152,7 @@ def scrape_results_urls_to_jsonl(
         print(f"   -> Session established. Using headers: {api_headers}")
 
         # Open in write mode so each run creates a fresh file and overwrites any existing output.
-        with RAW_JSONL.open("w", encoding="utf-8") as jsonl_file:
+        with RESULTS_RAW_JSONL.open("w", encoding="utf-8") as jsonl_file:
             for stage_index in range(stage_start, stage_end):
                 layer_name = URL_COLUMNS[stage_index]
                 results_urls = urls_by_layer.get(layer_name, [])
@@ -207,12 +208,295 @@ def scrape_results_urls_to_jsonl(
         browser.close()
 
     print("\nFinished.")
-    print(f"Saved JSONL to: {RAW_JSONL}")
+    print(f"Saved JSONL to: {RESULTS_RAW_JSONL}")
     print(f"Success: {success_count}")
     print(f"Failed: {fail_count}")
+
+# This function reads the raw JSONL file we created in the previous step, and flattens the nested JSON structure into a single CSV file.
+def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_csv: Path = RESULTS_FLAT_CSV) -> None:
+    if not input_jsonl.exists():
+        print(f"JSONL file not found: {input_jsonl}")
+        return
+
+    rows = [] # this will hold the flattened rows of data that we will eventually save to the CSV file
+
+    with input_jsonl.open("r", encoding="utf-8") as f:
+        # these loops go through each line in the JSONL file (each line is a JSON object representing an event), 
+        # and then they navigate through the nested structure of the JSON to extract all relevant information about the event, 
+        # its disciplines/categories (dcats), category rounds, stages, and routes.
+        for line_number, line in enumerate(f, start=1):
+            line = line.strip()
+            if not line:
+                continue
+
+            try:
+                results_payload = json.loads(line) # parse the JSON data for this event. If it fails, log the error and skip to the next line
+            except json.JSONDecodeError as exc:
+                print(f"Skipping invalid JSONL line {line_number}: {exc}")
+                continue
+
+            # 1st level of the JSON is the event payload itself.
+            # In test_results_raw.jsonl this top-level object carries event + dcat metadata directly,
+            # and category_rounds appears directly at the root (not nested under "dcats" or "d_cats").
+            event_base = {
+                "source_event_url": results_payload.get("source_event_url"),
+                "source_url_layer": results_payload.get("source_url_layer"),
+                "event_name": results_payload.get("event"),
+                "dcat_name": results_payload.get("dcat"),
+                "dcat_status": results_payload.get("status"),
+                "dcat_status_as_of": results_payload.get("status_as_of"),
+                "dcat_ranking_as_of": results_payload.get("ranking_as_of"),
+                "cutoff_rank": results_payload.get("cutoff_rank"),
+            }
+
+            # Keep backward compatibility with older payloads where category rounds are nested under dcats/d_cats.
+            dcats = results_payload.get("dcats") or results_payload.get("d_cats")
+            if dcats:
+                category_round_groups = [
+                    (
+                        {
+                            **event_base,
+                            "dcat_id": dcat.get("dcat_id"),
+                            "dcat_name": dcat.get("dcat_name") or event_base.get("dcat_name"),
+                            "discipline_kind": dcat.get("discipline_kind"),
+                            "category_id": dcat.get("category_id"),
+                            "category_name": dcat.get("category_name"),
+                            "dcat_status": dcat.get("status") or event_base.get("dcat_status"),
+                            "dcat_ranking_as_of": dcat.get("ranking_as_of") or event_base.get("dcat_ranking_as_of"),
+                            "full_results_url": dcat.get("full_results_url"),
+                        },
+                        dcat.get("category_rounds", []),
+                    )
+                    for dcat in dcats
+                ]
+            else:
+                category_round_groups = [(event_base, results_payload.get("category_rounds", []))]
+
+            # 2nd level of the JSON is the category round, which contains information about the specific round
+            # of the discipline/category and a list of stages or routes.
+            for dcat_base, category_rounds in category_round_groups:
+                for category_round in category_rounds:
+                    round_base = {
+                        **dcat_base,
+                        "category_round_id": category_round.get("category_round_id"),
+                        "round_kind": category_round.get("kind"),
+                        "round_name": category_round.get("name"),
+                        "round_category": category_round.get("category"),
+                        "round_status": category_round.get("status"),
+                        "round_status_as_of": category_round.get("status_as_of"),
+                        "round_result_url": category_round.get("result_url"),
+                        "format_identifier": category_round.get("format_identifier"),
+                        "format": category_round.get("format"),
+                        "league_round_id": (category_round.get("round") or {}).get("league_round_id"),
+                    }
+
+                    combined_stages = category_round.get("combined_stages") or []
+                    # some category rounds have a "combined_stages" key which contains a list of stages that are combined together,
+                    # while others just have a "routes" key with the routes directly under the category round.
+
+                    # 3rd level of the JSON is either the stage (if there are combined stages) or the route (if there are no combined stages).
+                    if combined_stages:
+                        for stage in combined_stages:
+                            stage_base = {
+                                **round_base,
+                                "stage_id": stage.get("id"),
+                                "stage_name": stage.get("stage_name"),
+                                "stage_kind": stage.get("kind"),
+                                "stage_status": stage.get("status"),
+                                "stage_status_as_of": stage.get("status_as_of"),
+                                "stage_results_url": stage.get("results"),
+                            }
+
+                            for route in stage.get("routes", []):
+                                rows.append(
+                                    {
+                                        **stage_base,
+                                        "route_id": route.get("id"),
+                                        "route_name": route.get("name"),
+                                        "route_startlist_url": route.get("startlist"),
+                                        "route_results_url": route.get("ranking"),
+                                    }
+                                )
+                    else:
+                        for route in category_round.get("routes", []):
+                            rows.append(
+                                {
+                                    **round_base,
+                                    "stage_id": None,
+                                    "stage_name": None,
+                                    "stage_kind": None,
+                                    "stage_status": None,
+                                    "stage_status_as_of": None,
+                                    "stage_results_url": None,
+                                    "route_id": route.get("id"),
+                                    "route_name": route.get("name"),
+                                    "route_startlist_url": route.get("startlist"),
+                                    "route_results_url": route.get("ranking"),
+                                }
+                            )
+
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    flat_df = pd.DataFrame(rows)
+    flat_df.to_csv(output_csv, index=False, encoding="utf-8")
+    print(f"Flattened CSV saved to: {output_csv}")
+    print(f"Flattened rows: {len(flat_df)}")
+
+
+def flatten_rankings_jsonl_to_csv(
+    input_jsonl: Path = RESULTS_RAW_JSONL,
+    output_csv: Path = RESULTS_RANKINGS_FLAT_CSV,
+) -> None:
+    if not input_jsonl.exists():
+        print(f"JSONL file not found: {input_jsonl}")
+        return
+
+    rows = [] # this will hold the flattened athlete ranking rows (including round/stage/ascent detail)
+
+    with input_jsonl.open("r", encoding="utf-8") as f:
+        # These loops go through ranking-focused layers from test_results_raw.jsonl:
+        # event payload -> ranking list (athletes) -> rounds -> combined_stages -> ascents.
+        for line_number, line in enumerate(f, start=1):
+            line = line.strip()
+            if not line:
+                continue
+
+            try:
+                results_payload = json.loads(line)
+            except json.JSONDecodeError as exc:
+                print(f"Skipping invalid JSONL line {line_number}: {exc}")
+                continue
+
+            # 1st level: event + discipline/category metadata shared by all athlete rows in this payload.
+            event_base = {
+                "source_event_url": results_payload.get("source_event_url"),
+                "source_url_layer": results_payload.get("source_url_layer"),
+                "event_name": results_payload.get("event"),
+                "dcat_name": results_payload.get("dcat"),
+                "dcat_status": results_payload.get("status"),
+                "dcat_status_as_of": results_payload.get("status_as_of"),
+                "dcat_ranking_as_of": results_payload.get("ranking_as_of"),
+                "cutoff_rank": results_payload.get("cutoff_rank"),
+            }
+
+            # 2nd level: ranking list where each item is an athlete result summary.
+            for athlete in results_payload.get("ranking") or []:
+                athlete_base = {
+                    **event_base,
+                    "athlete_id": athlete.get("athlete_id"),
+                    "squad_id": athlete.get("squad_id"),
+                    "athlete_rank": athlete.get("rank"),
+                    "athlete_name": athlete.get("name"),
+                    "bib_number": athlete.get("bib_number"),
+                    "firstname": athlete.get("firstname"),
+                    "lastname": athlete.get("lastname"),
+                    "country": athlete.get("country"),
+                    "organisation_id": athlete.get("organisation_id"),
+                    "flag_url": athlete.get("flag_url"),
+                }
+
+                # 3rd level: each athlete has round-level entries.
+                for athlete_round in athlete.get("rounds") or []:
+                    round_base = {
+                        **athlete_base,
+                        "category_round_id": athlete_round.get("category_round_id"),
+                        "round_name": athlete_round.get("round_name"),
+                        "round_rank": athlete_round.get("rank"),
+                        "round_score": athlete_round.get("score"),
+                    }
+
+                    combined_stages = athlete_round.get("combined_stages") or []
+
+                    # 4th level: stage-level entries and their ascents/routes.
+                    if combined_stages:
+                        for stage in combined_stages:
+                            stage_base = {
+                                **round_base,
+                                "stage_name": stage.get("stage_name"),
+                                "stage_score": stage.get("stage_score"),
+                                "stage_rank": stage.get("stage_rank"),
+                            }
+
+                            ascents = stage.get("ascents") or []
+                            if ascents:
+                                for ascent in ascents:
+                                    rows.append(
+                                        {
+                                            **stage_base,
+                                            "route_id": ascent.get("route_id"),
+                                            "route_name": ascent.get("route_name"),
+                                            "top": ascent.get("top"),
+                                            "top_tries": ascent.get("top_tries"),
+                                            "zone": ascent.get("zone"),
+                                            "zone_tries": ascent.get("zone_tries"),
+                                            "low_zone": ascent.get("low_zone"),
+                                            "low_zone_tries": ascent.get("low_zone_tries"),
+                                            "points": ascent.get("points"),
+                                            "score": ascent.get("score"),
+                                            "plus": ascent.get("plus"),
+                                            "restarted": ascent.get("restarted"),
+                                            "time_ms": ascent.get("time_ms"),
+                                            "ascent_status": ascent.get("status"),
+                                            "ascent_modified": ascent.get("modified"),
+                                        }
+                                    )
+                            else:
+                                rows.append(
+                                    {
+                                        **stage_base,
+                                        "route_id": None,
+                                        "route_name": None,
+                                        "top": None,
+                                        "top_tries": None,
+                                        "zone": None,
+                                        "zone_tries": None,
+                                        "low_zone": None,
+                                        "low_zone_tries": None,
+                                        "points": None,
+                                        "score": None,
+                                        "plus": None,
+                                        "restarted": None,
+                                        "time_ms": None,
+                                        "ascent_status": None,
+                                        "ascent_modified": None,
+                                    }
+                                )
+                    else:
+                        rows.append(
+                            {
+                                **round_base,
+                                "stage_name": None,
+                                "stage_score": None,
+                                "stage_rank": None,
+                                "route_id": None,
+                                "route_name": None,
+                                "top": None,
+                                "top_tries": None,
+                                "zone": None,
+                                "zone_tries": None,
+                                "low_zone": None,
+                                "low_zone_tries": None,
+                                "points": None,
+                                "score": None,
+                                "plus": None,
+                                "restarted": None,
+                                "time_ms": None,
+                                "ascent_status": None,
+                                "ascent_modified": None,
+                            }
+                        )
+
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+    ranking_df = pd.DataFrame(rows)
+    ranking_df.to_csv(output_csv, index=False, encoding="utf-8")
+    print(f"Flattened rankings CSV saved to: {output_csv}")
+    print(f"Flattened ranking rows: {len(ranking_df)}")
 
 # This is where the script starts execution. When you run this script, it will first call the function to scrape the event URLs and save the raw JSONL,
 #  and then it will call the function to flatten the JSONL into a CSV file.
 if __name__ == "__main__": # this line just means "if we run this script directly (instead of importing it as a module), then execute the following code"
-    scrape_results_urls_to_jsonl(headless=False, delay_seconds=0.5, batch_size=500, stages_per_run=1)
-   # flatten_jsonl_to_csv()
+    scrape_results_urls_to_jsonl(headless=False, 
+                                 delay_seconds=0, # set to 0 for no delay, or a small delay can help avoid triggering anti-scraping measures on the website
+                                 batch_size=500, # smaller batches can help with error handling and reduce memory usage, but larger batches can be faster if the site can handle it
+                                 stages_per_run=1) # if you want to include further URL layers set stages_per_run to 1 to run one URL layer at a time
+    flatten_results_jsonl_to_csv()
+    flatten_rankings_jsonl_to_csv()
