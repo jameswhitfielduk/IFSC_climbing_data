@@ -18,7 +18,7 @@ A raw json is now extracted so that you can see the structure and decide which e
 
 TO DO:
 * Amend the script to only incrementally add new rows to an existing events_data list AND only look at the new urls in that list.
-* Check text formatting so that special characters export to csv correctly.
+* Check all data formatting so that special characters export to csv correctly and date-time formats are correct.
 
 #### extract_JSON_from_urls.py ####
 
@@ -42,7 +42,12 @@ TO DO:
 
 #### extract_results_JSON_layers.py ####
 
-On first run this will try and loop through ~21k pages and take 5.5 hours
+On a full run the JSONL is too large for GitHub - do we need it?
+
+#### CUWR_rankings.py ####
+
+* Removed the event_group variable as it requires an additional layer that only contains aggregate_ranking_id and name
 
 TO DO:
-* Create a duplicate script to pull only one event / year
+* Annotate the script
+* Check data types on export (e.g. date-time formats)

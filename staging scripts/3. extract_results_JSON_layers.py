@@ -1,3 +1,6 @@
+### YOU WILL NEED TO DELETE YOUR CHECKPOINT FILE (all_results_checkpoint.json) TO RERUN THIS SCRIPT FROM THE START, 
+### OR ADJUST THE CHECKPOINT TO RESUME FROM A SPECIFIC URL LAYER/INDEX.
+
 # you may need to run 'playwright install' in the terminal to get the browsers
 
 from pathlib import Path
