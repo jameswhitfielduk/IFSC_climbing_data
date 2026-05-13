@@ -3,6 +3,7 @@
 from pathlib import Path
 import json
 import time
+import re
 import pandas as pd
 from playwright.sync_api import sync_playwright
 
@@ -18,7 +19,7 @@ from playwright.sync_api import sync_playwright
 # Each run starts from the first URL of the selected stage range.
 
 # Choose event ID to sample from events_data.csv. Set to None to include all events. No need for []
-SAMPLE_EVENT_ID = 1386
+SAMPLE_EVENT_ID = 1358
 
 # import the list of event URLs from the CSV file
 BASE = Path("new_raw_data") # the folder path
@@ -88,6 +89,14 @@ def load_results_urls_by_layer() -> dict[str, list[str]]:
         layer_urls = event_results_urls[col].dropna().astype(str).str.strip()
         urls_by_layer[col] = [url for url in pd.unique(layer_urls) if url]
     return urls_by_layer
+
+
+def extract_event_id_from_url(source_event_url: str | None) -> int | None:
+    if not source_event_url:
+        return None
+
+    match = re.search(r"/api/v1/events/(\d+)", source_event_url)
+    return int(match.group(1)) if match else None
 
 
 # This function uses Playwright to automate a browser, visit each result URL, and capture the JSON data returned by the website's API.
@@ -240,6 +249,7 @@ def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_c
             # and category_rounds appears directly at the root (not nested under "dcats" or "d_cats").
             event_base = {
                 "source_event_url": results_payload.get("source_event_url"),
+                "event_id": extract_event_id_from_url(results_payload.get("source_event_url")),
                 "source_url_layer": results_payload.get("source_url_layer"),
                 "event_name": results_payload.get("event"),
                 "dcat_name": results_payload.get("dcat"),
@@ -255,7 +265,9 @@ def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_c
                 category_round_groups = [
                     (
                         {
-                            **event_base,
+                            **event_base, 
+                            # start with the event-level metadata, then add/override with any dcat-level metadata
+                            #  (some fields are duplicated at both levels in the raw JSON)
                             "dcat_id": dcat.get("dcat_id"),
                             "dcat_name": dcat.get("dcat_name") or event_base.get("dcat_name"),
                             "discipline_kind": dcat.get("discipline_kind"),
@@ -337,9 +349,13 @@ def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_c
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     flat_df = pd.DataFrame(rows)
+    before_dedupe = len(flat_df)
+    flat_df = flat_df.drop_duplicates()
+    removed_duplicates = before_dedupe - len(flat_df)
     flat_df.to_csv(output_csv, index=False, encoding="utf-8")
     print(f"Flattened CSV saved to: {output_csv}")
     print(f"Flattened rows: {len(flat_df)}")
+    print(f"Removed exact duplicate rows: {removed_duplicates}")
 
 
 def flatten_rankings_jsonl_to_csv(
@@ -369,6 +385,7 @@ def flatten_rankings_jsonl_to_csv(
             # 1st level: event + discipline/category metadata shared by all athlete rows in this payload.
             event_base = {
                 "source_event_url": results_payload.get("source_event_url"),
+                "event_id": extract_event_id_from_url(results_payload.get("source_event_url")),
                 "source_url_layer": results_payload.get("source_url_layer"),
                 "event_name": results_payload.get("event"),
                 "dcat_name": results_payload.get("dcat"),
@@ -404,9 +421,63 @@ def flatten_rankings_jsonl_to_csv(
                         "round_score": athlete_round.get("score"),
                     }
 
-                    combined_stages = athlete_round.get("combined_stages") or []
+                    def append_ascent_rows(stage_base: dict, ascents: list[dict]) -> None:
+                        if ascents:
+                            for ascent in ascents:
+                                rows.append(
+                                    {
+                                        **stage_base,
+                                        "route_id": ascent.get("route_id"),
+                                        "route_name": ascent.get("route_name"),
+                                        "top": ascent.get("top"),
+                                        "top_tries": ascent.get("top_tries"),
+                                        "zone": ascent.get("zone"),
+                                        "zone_tries": ascent.get("zone_tries"),
+                                        "low_zone": ascent.get("low_zone"),
+                                        "low_zone_tries": ascent.get("low_zone_tries"),
+                                        "points": ascent.get("points"),
+                                        "score": ascent.get("score"),
+                                        "plus": ascent.get("plus"),
+                                        "restarted": ascent.get("restarted"),
+                                        "time_ms": ascent.get("time_ms"),
+                                        "ascent_status": ascent.get("status"),
+                                        "ascent_modified": ascent.get("modified"),
+                                    }
+                                )
+                        else:
+                            rows.append(
+                                {
+                                    **stage_base,
+                                    "route_id": None,
+                                    "route_name": None,
+                                    "top": None,
+                                    "top_tries": None,
+                                    "zone": None,
+                                    "zone_tries": None,
+                                    "low_zone": None,
+                                    "low_zone_tries": None,
+                                    "points": None,
+                                    "score": None,
+                                    "plus": None,
+                                    "restarted": None,
+                                    "time_ms": None,
+                                    "ascent_status": None,
+                                    "ascent_modified": None,
+                                }
+                            )
 
-                    # 4th level: stage-level entries and their ascents/routes.
+                    def dict_items(value) -> list[dict]:
+                        if isinstance(value, dict):
+                            return [value]
+                        if isinstance(value, list):
+                            return [item for item in value if isinstance(item, dict)]
+                        return []
+
+                    combined_stages = dict_items(athlete_round.get("combined_stages"))
+                    speed_elimination_stages = dict_items(athlete_round.get("speed_elimination_stages"))
+                    round_ascents = dict_items(athlete_round.get("ascents"))
+
+                    # Combined format (often Olympic-style).
                     if combined_stages:
                         for stage in combined_stages:
                             stage_base = {
@@ -415,81 +486,50 @@ def flatten_rankings_jsonl_to_csv(
                                 "stage_score": stage.get("stage_score"),
                                 "stage_rank": stage.get("stage_rank"),
                             }
+                            append_ascent_rows(stage_base, dict_items(stage.get("ascents")))
 
-                            ascents = stage.get("ascents") or []
-                            if ascents:
-                                for ascent in ascents:
-                                    rows.append(
-                                        {
-                                            **stage_base,
-                                            "route_id": ascent.get("route_id"),
-                                            "route_name": ascent.get("route_name"),
-                                            "top": ascent.get("top"),
-                                            "top_tries": ascent.get("top_tries"),
-                                            "zone": ascent.get("zone"),
-                                            "zone_tries": ascent.get("zone_tries"),
-                                            "low_zone": ascent.get("low_zone"),
-                                            "low_zone_tries": ascent.get("low_zone_tries"),
-                                            "points": ascent.get("points"),
-                                            "score": ascent.get("score"),
-                                            "plus": ascent.get("plus"),
-                                            "restarted": ascent.get("restarted"),
-                                            "time_ms": ascent.get("time_ms"),
-                                            "ascent_status": ascent.get("status"),
-                                            "ascent_modified": ascent.get("modified"),
-                                        }
-                                    )
-                            else:
-                                rows.append(
-                                    {
-                                        **stage_base,
-                                        "route_id": None,
-                                        "route_name": None,
-                                        "top": None,
-                                        "top_tries": None,
-                                        "zone": None,
-                                        "zone_tries": None,
-                                        "low_zone": None,
-                                        "low_zone_tries": None,
-                                        "points": None,
-                                        "score": None,
-                                        "plus": None,
-                                        "restarted": None,
-                                        "time_ms": None,
-                                        "ascent_status": None,
-                                        "ascent_modified": None,
-                                    }
-                                )
+                    # Speed elimination format used by many non-Olympic speed events.
+                    elif speed_elimination_stages:
+                        for stage in speed_elimination_stages:
+                            stage_base = {
+                                **round_base,
+                                "stage_name": stage.get("name"),
+                                "stage_score": stage.get("score"),
+                                "stage_rank": stage.get("id"),
+                            }
+                            append_ascent_rows(stage_base, dict_items(stage.get("ascents")))
+
+                    # Direct ascents at round level (no stage wrapper).
+                    elif round_ascents:
+                        stage_base = {
+                            **round_base,
+                            "stage_name": None,
+                            "stage_score": None,
+                            "stage_rank": None,
+                        }
+                        append_ascent_rows(stage_base, round_ascents)
+
+                    # Fallback when round has no ascent detail at all.
                     else:
-                        rows.append(
+                        append_ascent_rows(
                             {
                                 **round_base,
                                 "stage_name": None,
                                 "stage_score": None,
                                 "stage_rank": None,
-                                "route_id": None,
-                                "route_name": None,
-                                "top": None,
-                                "top_tries": None,
-                                "zone": None,
-                                "zone_tries": None,
-                                "low_zone": None,
-                                "low_zone_tries": None,
-                                "points": None,
-                                "score": None,
-                                "plus": None,
-                                "restarted": None,
-                                "time_ms": None,
-                                "ascent_status": None,
-                                "ascent_modified": None,
-                            }
+                            },
+                            [],
                         )
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     ranking_df = pd.DataFrame(rows)
+    before_dedupe = len(ranking_df)
+    ranking_df = ranking_df.drop_duplicates()
+    removed_duplicates = before_dedupe - len(ranking_df)
     ranking_df.to_csv(output_csv, index=False, encoding="utf-8")
     print(f"Flattened rankings CSV saved to: {output_csv}")
     print(f"Flattened ranking rows: {len(ranking_df)}")
+    print(f"Removed exact duplicate rows: {removed_duplicates}")
 
 # This is where the script starts execution. When you run this script, it will first call the function to scrape the event URLs and save the raw JSONL,
 #  and then it will call the function to flatten the JSONL into a CSV file.

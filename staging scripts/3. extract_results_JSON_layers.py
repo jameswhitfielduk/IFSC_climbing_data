@@ -5,6 +5,7 @@
 
 from pathlib import Path
 import json
+import re
 import time
 import pandas as pd
 from playwright.sync_api import sync_playwright
@@ -27,6 +28,7 @@ RESULTS_RAW_JSONL = BASE / "all_results_raw.jsonl" # the output JSONL file where
 RESULTS_FLAT_CSV = BASE / "all_results_meta_flat.csv" # the output CSV file where we will save the flattened data
 RESULTS_RANKINGS_FLAT_CSV = BASE / "all_rankings_flat.csv" # flattened athlete ranking/ascent level data
 RESULTS_CHECKPOINT_FILE = BASE / "all_results_checkpoint.json"
+RESULTS_BY_SEASON_DIR = BASE / "by_season"
 
 # Choose which year(s) to extract from EVENTS_CSV:
 # - Set to None to include all years in events_data.csv.
@@ -63,6 +65,15 @@ URL_COLUMNS = [
     #,"route_results_url"
 ]
 
+
+def extract_event_id_from_url(source_event_url: str | None) -> int | None:
+    if not source_event_url:
+        return None
+    match = re.search(r"/api/v1/events/(\d+)", str(source_event_url))
+    if not match:
+        return None
+    return int(match.group(1))
+
 # This function reads each URL layer separately and returns a de-duplicated list per layer.
     # the function returns a dictionary where the keys are the layer names (from URL_COLUMNS) and the values are lists of URLs for that layer
 def load_results_urls_by_layer() -> dict[str, list[str]]: 
@@ -88,6 +99,37 @@ def load_results_urls_by_layer() -> dict[str, list[str]]:
         layer_urls = event_results_urls[col].dropna().astype(str).str.strip()
         urls_by_layer[col] = [url for url in pd.unique(layer_urls) if url]
     return urls_by_layer
+
+
+def build_url_to_season_id_map() -> dict[str, int]:
+    event_results_urls = pd.read_csv(EVENT_RESULTS_CSV, usecols=["season_id", *URL_COLUMNS])
+
+    if RESULTS_YEARS_TO_EXTRACT:
+        years = [int(y) for y in RESULTS_YEARS_TO_EXTRACT]
+        season_ids = [seasons[y] for y in years if y in seasons]
+        if season_ids:
+            event_results_urls = event_results_urls[event_results_urls["season_id"].isin(season_ids)]
+        else:
+            event_results_urls = event_results_urls.iloc[0:0]
+
+    url_to_season_id: dict[str, int] = {}
+    for col in URL_COLUMNS:
+        for _, row in event_results_urls[["season_id", col]].dropna(subset=["season_id", col]).iterrows():
+            url = str(row[col]).strip()
+            if not url:
+                continue
+            try:
+                season_id = int(row["season_id"])
+            except (TypeError, ValueError):
+                continue
+            url_to_season_id[url] = season_id
+
+    return url_to_season_id
+
+
+def season_jsonl_path(season_id: int | None) -> Path:
+    suffix = str(season_id) if season_id is not None else "unknown"
+    return RESULTS_BY_SEASON_DIR / f"all_results_raw_season_{suffix}.jsonl"
 
 # These two functions handle checkpointing, which allows us to save our progress after each batch of URLs is processed.
 def load_checkpoint() -> dict[str, int]:
@@ -120,7 +162,22 @@ def scrape_results_urls_to_jsonl(
     stages_per_run: int = 1, # number of URL layers to process in one run; set to 1 to do one layer at a time, or higher to do multiple layers
 ) -> None:
     urls_by_layer = load_results_urls_by_layer()
+    url_to_season_id = build_url_to_season_id_map()
     RESULTS_RAW_JSONL.parent.mkdir(parents=True, exist_ok=True) # make sure the output directory exists
+    RESULTS_BY_SEASON_DIR.mkdir(parents=True, exist_ok=True)
+    seen_json_keys: set[str] = set()
+    if RESULTS_RAW_JSONL.exists():
+        with RESULTS_RAW_JSONL.open("r", encoding="utf-8") as existing_jsonl:
+            for line in existing_jsonl:
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                try:
+                    key = json.dumps(json.loads(stripped), sort_keys=True, ensure_ascii=False)
+                except json.JSONDecodeError:
+                    key = stripped
+                seen_json_keys.add(key)
+
     state = load_checkpoint() # load the checkpoint to see where we left off in the last run, so we can resume from there instead of starting over
 
     stage_start = max(0, state["stage_index"]) # determine the starting stage based on the checkpoint
@@ -220,9 +277,23 @@ def scrape_results_urls_to_jsonl(
                             print(f"  -> Skipped unexpected payload type: {type(json_data)}")
                             continue
 
+                        season_id = url_to_season_id.get(results_url)
                         json_data["source_event_url"] = results_url # add the source URL to the JSON data, so we know which event it came from when we process it later
                         json_data["source_url_layer"] = layer_name
-                        jsonl_file.write(json.dumps(json_data, ensure_ascii=False) + "\n") # write the JSON data to the JSONL file, one line per event
+                        json_data["source_season_id"] = season_id
+
+                        json_key = json.dumps(json_data, sort_keys=True, ensure_ascii=False)
+                        if json_key in seen_json_keys:
+                            continue
+                        seen_json_keys.add(json_key)
+
+                        json_line = json.dumps(json_data, ensure_ascii=False) + "\n"
+                        jsonl_file.write(json_line) # write the JSON data to the combined JSONL file, one line per event
+
+                        season_path = season_jsonl_path(season_id)
+                        with season_path.open("a", encoding="utf-8") as season_jsonl_file:
+                            season_jsonl_file.write(json_line)
+
                         success_count += 1
 
                         if delay_seconds > 0:
@@ -239,6 +310,7 @@ def scrape_results_urls_to_jsonl(
 
     print("\nFinished.")
     print(f"Saved JSONL to: {RESULTS_RAW_JSONL}")
+    print(f"Saved season-partitioned JSONL files to: {RESULTS_BY_SEASON_DIR}")
     print(f"Success: {success_count}")
     print(f"Failed: {fail_count}")
 
@@ -268,8 +340,11 @@ def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_c
             # 1st level of the JSON is the event payload itself.
             # In test_results_raw.jsonl this top-level object carries event + dcat metadata directly,
             # and category_rounds appears directly at the root (not nested under "dcats" or "d_cats").
+            source_event_url = results_payload.get("source_event_url")
+            # done first for use in the event_id extraction function, which looks for the event ID in the URL
             event_base = {
-                "source_event_url": results_payload.get("source_event_url"),
+                "source_event_url": source_event_url,
+                "event_id": extract_event_id_from_url(source_event_url), # the event ID is extracted from the URL
                 "source_url_layer": results_payload.get("source_url_layer"),
                 "event_name": results_payload.get("event"),
                 "dcat_name": results_payload.get("dcat"),
@@ -286,6 +361,8 @@ def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_c
                     (
                         {
                             **event_base,
+                            # start with the event-level metadata, then add/override with any dcat-level metadata
+                            #  (some fields are duplicated at both levels in the raw JSON)
                             "dcat_id": dcat.get("dcat_id"),
                             "dcat_name": dcat.get("dcat_name") or event_base.get("dcat_name"),
                             "discipline_kind": dcat.get("discipline_kind"),
@@ -368,9 +445,13 @@ def flatten_results_jsonl_to_csv(input_jsonl: Path = RESULTS_RAW_JSONL, output_c
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     flat_df = pd.DataFrame(rows)
+    before_dedupe = len(flat_df)
+    flat_df = flat_df.drop_duplicates()
+    removed_duplicates = before_dedupe - len(flat_df)
     flat_df.to_csv(output_csv, index=False, encoding="utf-8")
     print(f"Flattened CSV saved to: {output_csv}")
     print(f"Flattened rows: {len(flat_df)}")
+    print(f"Removed exact duplicate rows: {removed_duplicates}")
 
 # This function is similar to the previous one, but goes beyond the meta data into the JSON structure 
 # to extract detailed information about athlete rankings, rounds, stages, and ascents.
@@ -399,8 +480,11 @@ def flatten_rankings_jsonl_to_csv(
                 continue
 
             # 1st level: event + discipline/category metadata shared by all athlete rows in this payload.
+            source_event_url = results_payload.get("source_event_url") 
+            # done first for use in the event_id extraction function
             event_base = {
-                "source_event_url": results_payload.get("source_event_url"),
+                "source_event_url": source_event_url,
+                "event_id": extract_event_id_from_url(source_event_url), # the id is in the URL above
                 "source_url_layer": results_payload.get("source_url_layer"),
                 "event_name": results_payload.get("event"),
                 "dcat_name": results_payload.get("dcat"),
@@ -412,6 +496,9 @@ def flatten_rankings_jsonl_to_csv(
 
             # 2nd level: ranking list where each item is an athlete result summary.
             for athlete in results_payload.get("ranking") or []:
+                if not isinstance(athlete, dict):
+                    continue
+
                 athlete_base = {
                     **event_base,
                     "athlete_id": athlete.get("athlete_id"),
@@ -428,6 +515,9 @@ def flatten_rankings_jsonl_to_csv(
 
                 # 3rd level: each athlete has round-level entries.
                 for athlete_round in athlete.get("rounds") or []:
+                    if not isinstance(athlete_round, dict):
+                        continue
+
                     round_base = {
                         **athlete_base,
                         "category_round_id": athlete_round.get("category_round_id"),
@@ -436,11 +526,63 @@ def flatten_rankings_jsonl_to_csv(
                         "round_score": athlete_round.get("score"),
                     }
 
-                    combined_stages = athlete_round.get("combined_stages") or []
+                    def append_ascent_rows(stage_base: dict, ascents: list[dict]) -> None:
+                        if ascents:
+                            for ascent in ascents:
+                                rows.append(
+                                    {
+                                        **stage_base,
+                                        "route_id": ascent.get("route_id"),
+                                        "route_name": ascent.get("route_name"),
+                                        "top": ascent.get("top"),
+                                        "top_tries": ascent.get("top_tries"),
+                                        "zone": ascent.get("zone"),
+                                        "zone_tries": ascent.get("zone_tries"),
+                                        "low_zone": ascent.get("low_zone"),
+                                        "low_zone_tries": ascent.get("low_zone_tries"),
+                                        "points": ascent.get("points"),
+                                        "score": ascent.get("score"),
+                                        "plus": ascent.get("plus"),
+                                        "restarted": ascent.get("restarted"),
+                                        "time_ms": ascent.get("time_ms"),
+                                        "ascent_status": ascent.get("status"),
+                                        "ascent_modified": ascent.get("modified"),
+                                    }
+                                )
+                        else:
+                            rows.append(
+                                {
+                                    **stage_base,
+                                    "route_id": None,
+                                    "route_name": None,
+                                    "top": None,
+                                    "top_tries": None,
+                                    "zone": None,
+                                    "zone_tries": None,
+                                    "low_zone": None,
+                                    "low_zone_tries": None,
+                                    "points": None,
+                                    "score": None,
+                                    "plus": None,
+                                    "restarted": None,
+                                    "time_ms": None,
+                                    "ascent_status": None,
+                                    "ascent_modified": None,
+                                }
+                            )
 
-                    # 4th level: stage-level entries and their ascents/routes.
-                    # there are 3 loops here to handle the different possible structures of the JSON, 
-                    # depending on whether combined stages are present or not, and whether ascents are present or not.
+                    def dict_items(value) -> list[dict]:
+                        if isinstance(value, dict):
+                            return [value]
+                        if isinstance(value, list):
+                            return [item for item in value if isinstance(item, dict)]
+                        return []
+
+                    combined_stages = dict_items(athlete_round.get("combined_stages"))
+                    speed_elimination_stages = dict_items(athlete_round.get("speed_elimination_stages"))
+                    round_ascents = dict_items(athlete_round.get("ascents"))
+
+                    # Combined format (often Olympic-style).
                     if combined_stages:
                         for stage in combined_stages:
                             stage_base = {
@@ -449,83 +591,67 @@ def flatten_rankings_jsonl_to_csv(
                                 "stage_score": stage.get("stage_score"),
                                 "stage_rank": stage.get("stage_rank"),
                             }
+                            append_ascent_rows(stage_base, dict_items(stage.get("ascents")))
 
-                            ascents = stage.get("ascents") or []
-                            if ascents:
-                                for ascent in ascents:
-                                    rows.append(
-                                        {
-                                            **stage_base,
-                                            "route_id": ascent.get("route_id"),
-                                            "route_name": ascent.get("route_name"),
-                                            "top": ascent.get("top"),
-                                            "top_tries": ascent.get("top_tries"),
-                                            "zone": ascent.get("zone"),
-                                            "zone_tries": ascent.get("zone_tries"),
-                                            "low_zone": ascent.get("low_zone"),
-                                            "low_zone_tries": ascent.get("low_zone_tries"),
-                                            "points": ascent.get("points"),
-                                            "score": ascent.get("score"),
-                                            "plus": ascent.get("plus"),
-                                            "restarted": ascent.get("restarted"),
-                                            "time_ms": ascent.get("time_ms"),
-                                            "ascent_status": ascent.get("status"),
-                                            "ascent_modified": ascent.get("modified"),
-                                        }
-                                    )
-                            else:
-                                rows.append(
-                                    {
-                                        **stage_base,
-                                        "route_id": None,
-                                        "route_name": None,
-                                        "top": None,
-                                        "top_tries": None,
-                                        "zone": None,
-                                        "zone_tries": None,
-                                        "low_zone": None,
-                                        "low_zone_tries": None,
-                                        "points": None,
-                                        "score": None,
-                                        "plus": None,
-                                        "restarted": None,
-                                        "time_ms": None,
-                                        "ascent_status": None,
-                                        "ascent_modified": None,
-                                    }
-                                )
+                    # Speed elimination format used by many non-Olympic speed events.
+                    elif speed_elimination_stages:
+                        for stage in speed_elimination_stages:
+                            stage_base = {
+                                **round_base,
+                                "stage_name": stage.get("name"),
+                                "stage_score": stage.get("score"),
+                                "stage_rank": stage.get("id"),
+                            }
+                            append_ascent_rows(stage_base, dict_items(stage.get("ascents")))
+
+                    # Direct ascents at round level (no stage wrapper).
+                    elif round_ascents:
+                        stage_base = {
+                            **round_base,
+                            "stage_name": None,
+                            "stage_score": None,
+                            "stage_rank": None,
+                        }
+                        append_ascent_rows(stage_base, round_ascents)
+
+                    # Fallback when round has no ascent detail at all.
                     else:
-                        rows.append(
+                        append_ascent_rows(
                             {
                                 **round_base,
                                 "stage_name": None,
                                 "stage_score": None,
                                 "stage_rank": None,
-                                "route_id": None,
-                                "route_name": None,
-                                "top": None,
-                                "top_tries": None,
-                                "zone": None,
-                                "zone_tries": None,
-                                "low_zone": None,
-                                "low_zone_tries": None,
-                                "points": None,
-                                "score": None,
-                                "plus": None,
-                                "restarted": None,
-                                "time_ms": None,
-                                "ascent_status": None,
-                                "ascent_modified": None,
-                            }
+                            },
+                            [],
                         )
 
     output_csv.parent.mkdir(parents=True, exist_ok=True)
     ranking_df = pd.DataFrame(rows)
+    before_dedupe = len(ranking_df)
+    ranking_df = ranking_df.drop_duplicates()
+    removed_duplicates = before_dedupe - len(ranking_df)
     ranking_df.to_csv(output_csv, index=False, encoding="utf-8")
     print(f"Flattened rankings CSV saved to: {output_csv}")
     print(f"Flattened ranking rows: {len(ranking_df)}")
+    print(f"Removed exact duplicate rows: {removed_duplicates}")
 
 
+def flatten_partitioned_outputs_by_season() -> None:
+    RESULTS_BY_SEASON_DIR.mkdir(parents=True, exist_ok=True)
+    season_jsonl_files = sorted(RESULTS_BY_SEASON_DIR.glob("all_results_raw_season_*.jsonl"))
+
+    if not season_jsonl_files:
+        print(f"No season JSONL files found in: {RESULTS_BY_SEASON_DIR}")
+        return
+
+    for input_jsonl in season_jsonl_files:
+        season_suffix = input_jsonl.stem.replace("all_results_raw_season_", "")
+        meta_output_csv = RESULTS_BY_SEASON_DIR / f"all_results_meta_flat_season_{season_suffix}.csv"
+        rankings_output_csv = RESULTS_BY_SEASON_DIR / f"all_rankings_flat_season_{season_suffix}.csv"
+
+        flatten_results_jsonl_to_csv(input_jsonl=input_jsonl, output_csv=meta_output_csv)
+        flatten_rankings_jsonl_to_csv(input_jsonl=input_jsonl, output_csv=rankings_output_csv)
 
 
 # This is where the script starts execution. When you run this script, it will first call the function to scrape the event URLs and save the raw JSONL,
@@ -537,3 +663,4 @@ if __name__ == "__main__": # this line just means "if we run this script directl
     )
     flatten_results_jsonl_to_csv()
     flatten_rankings_jsonl_to_csv()
+    flatten_partitioned_outputs_by_season()

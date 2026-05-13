@@ -4,11 +4,16 @@ from playwright.sync_api import sync_playwright
 import pandas as pd
 import time
 import json
+from pathlib import Path
+
+#### WARNING - at the moment this script will append to the CSVs every time you run it, 
+# it removes duplicates, but the size of the CSVs will grow approximately 4k rows each run. 
+# You may want to clear them out every now and then or implement a date-based partitioning strategy.
 
 CUWR_PATH = "https://ifsc.results.info/api/v1/cuwr/"
 TARGET_CATEGORY_ID = None  # set to a category id (e.g., 617) to fetch one category only; set to None to fetch all
 SAVE_RAW_JSON = True
-RAW_JSON_PATH = "new_raw_data/test_CUWR_raw.json"
+RAW_JSON_PATH = "new_raw_data/CUWR_raw.json"
 ranking_categories = {1: "LEAD Men",
                       2: "SPEED Men",
                       3: "BOULDER Men",
@@ -214,10 +219,25 @@ def fetch_ifsc_with_playwright():
 # Run the function to get the flattened DataFrame from the JSON structure.
 rankings_df, events_df = fetch_ifsc_with_playwright()
 
-# Export flattened ranking rows to CSV
-rankings_df.to_csv("new_raw_data/CUWR_rankings.csv", index=False)
-print(f"CUWR rankings data saved to: new_raw_data/CUWR_rankings.csv")
+def append_and_dedupe(csv_path, new_df):
+    path = Path(csv_path)
 
-# Export flattened event rows to CSV
-events_df.to_csv("new_raw_data/CUWR_events.csv", index=False)
-print(f"CUWR events data saved to: new_raw_data/CUWR_events.csv")
+    if path.exists():
+        existing_df = pd.read_csv(path)
+        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+    else:
+        combined_df = new_df.copy()
+
+    combined_df = combined_df.drop_duplicates()
+    combined_df.to_csv(path, index=False)
+    return len(combined_df)
+
+
+rankings_path = "new_raw_data/CUWR_rankings.csv"
+events_path = "new_raw_data/CUWR_events.csv"
+
+rankings_rows = append_and_dedupe(rankings_path, rankings_df)
+print(f"CUWR rankings data saved to: {rankings_path} ({rankings_rows} rows after dedupe)")
+
+events_rows = append_and_dedupe(events_path, events_df)
+print(f"CUWR events data saved to: {events_path} ({events_rows} rows after dedupe)")
