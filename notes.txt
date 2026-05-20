@@ -27,19 +27,6 @@ such as https://ifsc.results.info/api/v1/category_rounds/8584/results
 
 Use a JSON tree viewer online to understand the JSON structure.
 
-I will need to decide which elements to pull into the flat csv version, or can I just use the JSONL for 
-further steps?
-
-TO DO:
-* Can it be scraped faster without rate-limit
-* Understand required output
-* Adjust flat csv output
-* Add back in ability to query a single JSON from a specific URL / single year - have a seperate script for this?
-
-#### Emma conversation 28/04 ####
-* Send an example output ASAP
-* Replicate the previous output CSV structure. but also provide a flat csv of all columns
-
 #### extract_results_JSON_layers.py ####
 
 On a full run the JSONL is too large for GitHub - do we need it?
@@ -47,7 +34,4 @@ On a full run the JSONL is too large for GitHub - do we need it?
 #### CUWR_rankings.py ####
 
 * Removed the event_group variable as it requires an additional layer that only contains aggregate_ranking_id and name
-
-TO DO:
-* Annotate the script
-* Check data types on export (e.g. date-time formats)
+* Add the season dictionary to the README and the category IDs
